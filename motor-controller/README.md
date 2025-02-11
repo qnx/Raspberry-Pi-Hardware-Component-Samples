@@ -1,5 +1,5 @@
 ### Motor Control Sample
-This code uses the `DRV8833PWP` dual motor controller to control to motors to drive them forward, backwards, left and right
+This demo shows how to control dc motors using a standard motor controller. This code uses the `DRV8833PWP` dual motor controller to control to motors, but the method should be similar for other motor drivers. This program drives the motors forward, backwards, left and right
 
 Below is the schematic diagram of the motor controller. 
 ![alt text](images/controller.png)
