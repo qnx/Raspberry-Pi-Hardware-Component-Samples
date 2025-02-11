@@ -18,3 +18,4 @@ Below is the schematic diagram of the motor controller.
 - IN 1: Connected to GPIO: 11
 
 ## Schematic Diagram
+![alt text](images/circuit_image.png)
