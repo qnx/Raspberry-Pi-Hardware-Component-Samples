@@ -9,6 +9,7 @@
 // This global variable is used to store a pointer to the Raspberry Pi's GPIO registers.
 // It is declared as volatile to prevent compiler optimizations that may interfere with hardware access.
 volatile uint32_t *rpi_gpio_regs;
+
 // Define the pins required to controll the motor driver
 #define GPIO_LED_PIN       20 // GPIO pin 20, Controls the LED
 #define GPIO_PIR_PIN       21 // GPIO pin 21, Takes input from the PIR sensor
