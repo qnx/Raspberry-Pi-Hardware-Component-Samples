@@ -53,7 +53,7 @@ int main(void) {
     sleep(2);
 
     // Move the motors in a backward direction
-    // To Move the motors backward, the negative terminal of the left and right motors needs to be set
+    // To move the motors backward, the negative terminal of the left and right motors needs to be set
     // Likewise the positive terminal of the left and right motors needs to be cleared
     rpi_gpio_set(MOTOR_RP);
     rpi_gpio_clear(MOTOR_RP);
