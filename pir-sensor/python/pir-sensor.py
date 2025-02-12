@@ -5,7 +5,7 @@ import time
 GPIO_LED_PIN = 20 # GPIO pin 20, Controls the LED
 GPIO_PIR_PIN = 21 # GPIO pin 21, Takes input from the PIR sensor
 
-# Define the Led pin to be an output
+# Define the LED pin to be an output
 GPIO.setup(GPIO_LED_PIN, GPIO.OUT)
 # Define the PIR pin to be an input
 GPIO.setup(GPIO_PIR_PIN, GPIO.IN)
