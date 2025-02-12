@@ -17,7 +17,7 @@ volatile uint32_t *rpi_gpio_regs;
 #define MOTOR_LP        8 // GPIO pin 8, Controls the input to the positive terminal off the left motor
 #define MOTOR_LN       11 // GPIO pin 11, Controls the input to the negative terminal off the left motor
 
-// Base address of the GPIO registers on the raspberry pi
+// Base address of the GPIO registers on the Raspberry Pi
 #define RPI_PERIPHERAL_BASE 0xfe000000
 
 
