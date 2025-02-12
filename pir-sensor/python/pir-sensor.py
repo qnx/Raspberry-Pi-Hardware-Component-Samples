@@ -14,7 +14,7 @@ def main():
     # The while loop continuously reads the data from the PIR sensor and turns the LED on if motion is detected
     while(True):
         # If the received value from the PIR sensor is one, motion is detected and the LED is turned on
-        # Otherwise the led is turned off
+        # Otherwise the LED is turned off
         if (GPIO.input(GPIO_PIR_PIN) == 1):
             GPIO.output(GPIO_LED_PIN, GPIO.OUT)
             print("Motion Detected!!!")
