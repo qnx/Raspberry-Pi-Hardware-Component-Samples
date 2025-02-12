@@ -4,7 +4,7 @@ import rpi_gpio as GPIO
 # Define the pins required to control the motors
 MOTOR_EN_PIN = 26 # GPIO pin 26, Enable pin is used to turn on and off the motors
 MOTOR_RP = 10 # GPIO pin 10, Controls the input to the positive terminal of the right motor
-MOTOR_RN = 9 # GPIO pin 9, Controls the input to the negative terminal off the right motor
+MOTOR_RN = 9 # GPIO pin 9, Controls the input to the negative terminal of the right motor
 MOTOR_LP = 8 # GPIO pin 8, Controls the input to the positive terminal off the left motor
 MOTOR_LN = 11 # GPIO pin 11, Controls the input to the negative terminal off the left motor
 
