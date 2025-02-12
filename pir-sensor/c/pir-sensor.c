@@ -28,7 +28,7 @@ int main(void) {
     // Initialize the LED GPIO pin to be an output
     rpi_gpio_set_select(GPIO_LED_PIN, RPI_GPIO_FUNC_OUT);
 
-    // Initialize the PIR GPIO Pin to be an input
+    // Initialize the PIR GPIO pin to be an input
     rpi_gpio_set_select(GPIO_PIR_PIN, RPI_GPIO_FUNC_IN);
 
     // The while loop continously read the data from the PIR sensor and turns the LED on if motion is detected
