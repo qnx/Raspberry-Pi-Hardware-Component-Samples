@@ -74,7 +74,7 @@ int main(void) {
     rpi_gpio_clear(MOTOR_LP);
     rpi_gpio_set(MOTOR_LN);
     
-    // We keep the state for 2 seconds, allowing or motors to move left for that time
+    // We keep the state for 2 seconds, allowing our motors to move left for that time
     printf("Moving Left...\n");
     sleep(2);
 
