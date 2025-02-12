@@ -31,7 +31,7 @@ int main(void) {
     // Initialize the PIR GPIO pin to be an input
     rpi_gpio_set_select(GPIO_PIR_PIN, RPI_GPIO_FUNC_IN);
 
-    // The while loop continously read the data from the PIR sensor and turns the LED on if motion is detected
+    // The while loop continously reads the data from the PIR sensor and turns the LED on if motion is detected
     while(1){
         // 'rpi_gpio_read' reads the value from the PIR sensor when called
         // The return value is 1, if motion is detected and 0 otherwise
