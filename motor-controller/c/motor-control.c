@@ -41,7 +41,7 @@ int main(void) {
     rpi_gpio_set(MOTOR_EN_PIN);
 
     // Move the motors in a forward direction
-    // To Move the motors forward, the positve terminal of the left and right motors needs to be set
+    // To move the motors forward, the positive terminal of the left and right motors needs to be set
     // Likewise the negative terminal of the left and right motors needs to be cleared
     rpi_gpio_set(MOTOR_RP);
     rpi_gpio_clear(MOTOR_RN);
