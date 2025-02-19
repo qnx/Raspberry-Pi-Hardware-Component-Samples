@@ -1,0 +1,3 @@
+Ultrasonic.o: \
+ /home/nirajpatel/clone/hardware-component-samples/hc-sr04_ultrasonic_sensor/c/Ultrasonic.c \
+ ../../../../../common/system/gpio/aarch64/rpi_gpio.h
