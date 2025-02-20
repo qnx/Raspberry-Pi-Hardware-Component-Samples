@@ -16,7 +16,6 @@ IMPORTANT:
   The sensor is powered by 5V, and the echo pin’s voltage is reduced by a resistor divider.
   This version disables the internal pull resistor (using GPIO.PUD_OFF) for the echo pin.
   
-  Run this script with root privileges.
 """
  
 import rpi_gpio as GPIO  # QNX Raspberry Pi GPIO module
