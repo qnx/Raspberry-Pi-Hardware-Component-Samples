@@ -56,7 +56,7 @@ When using the sensor on a breadboard or other hardware:
   - **Echo:** Connect to a GPIO output. 
  
 - **GPIO Pin Configuration:**  
-  Modify the code (both C and Python) to use the appropriate GPIO pins for your setup.
+  Modify the code to use the appropriate GPIO pins for your setup.
  
 ## Schematic
  
