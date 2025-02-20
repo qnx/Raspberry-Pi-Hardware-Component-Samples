@@ -64,7 +64,7 @@ A schematic for the Trilobot wiring is available in the `schematic/` folder. Thi
  
 ## Software Requirements
  
-- **QNX Operating System (Neutrino OS)**
+- **QNX Operating System 8.0**
 - **rpi_gpio API:**  
   The GPIO client API (e.g., `rpi_gpio.h`) is provided in the `common/` folder.  
 
