@@ -1,12 +1,19 @@
 /*
  * Copyright (c) 2024, BlackBerry Limited. All rights reserved.
  *
- * BlackBerry Limited and its licensors  retain all intellectual property and
- * proprietary rights in and to this software and related documentation.  Any
- * use, reproduction, disclosure or distribution of this software and related
- * documentation without an express license agreement from BlackBerry Limited
- * is strictly prohibited.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 
 #ifndef RPI_GPIO_API_H
 #define RPI_GPIO_API_H
@@ -14,11 +21,12 @@
 #include <sys/rpi_gpio.h>
 
 /* Return codes for client API */
-#define GPIO_SUCCESS                         0
-#define GPIO_ERROR_NOT_CONNECTED            -1
-#define GPIO_ERROR_MSG_NOT_SENT             -2
+#define GPIO_SUCCESS 0
+#define GPIO_ERROR_NOT_CONNECTED -1
+#define GPIO_ERROR_MSG_NOT_SENT -2
 #define GPIO_ERROR_MSG_EVENT_NOT_REGISTERED -3
-#define GPIO_ERROR_INPUT_OUT_OF_RANGE       -4
+#define GPIO_ERROR_INPUT_OUT_OF_RANGE -4
+#define GPIO_ERROR_CLEANING_UP -5
 
 /* GPIO PIN codes */
 #define GPIO_COUNT 28
@@ -77,51 +85,134 @@ enum gpio_level_t
 /* GPIO pin change events */
 enum gpio_change_event_t
 {
-    GPIO_RISING  = 2,
+    GPIO_RISING = 2,
     GPIO_FALLING = 3,
-    GPIO_BOTH    = 4,
-    GPIO_ALL     = 5
+    GPIO_BOTH = 4,
+    GPIO_ALL = 5
 };
 
 /* PWM channel operation mode */
 enum pwm_channel_op_mode_t
 {
     GPIO_PWM_MODE_PWM = 0,
-    GPIO_PWM_MODE_MS  = 1
+    GPIO_PWM_MODE_MS = 1
 };
 
-/* SPI chip select selections */
-enum spi_chip_select_t
-{
-    SPI_CS_0 =          0x0,
-    SPI_CS_1 =          0x1,
-    SPI_CS_2 =          0x2,
-    SPI_CS_MANUAL =     0x3,
-    SPI_CS_MASK =       0x3
-};
-
-/* Select GPIO configuration (input/output) */
+/**
+ * Select GPIO configuration (input/output)
+ *
+ * @param    gpio_pin       GPIO pin
+ * @param    configuration  pin configuration (@ref gpio_config_t)
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if the GPIO resource manager not available to connect to
+ *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
+ *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number or pin configuration provided
+ */
 int rpi_gpio_setup(int gpio_pin, unsigned configuration);
 
-/* Set pull-up/pull-down */
-int rpi_gpio_setup_pull(int gpio_pin, unsigned configuration, unsigned updown);
+/**
+ * Set pull-up/pull-down
+ *
+ * @param    gpio_pin       GPIO pin
+ * @param    configuration  pin configuration (@ref gpio_config_t)
+ * @param    direction      direction (@ref gpio_pull_t)
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if the GPIO resource manager not available to connect to
+ *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
+ *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number or pin configuration or direction provided
+ */
+int rpi_gpio_setup_pull(int gpio_pin, unsigned configuration, unsigned direction);
 
-/* Set up PWM with frequency and range */
+/**
+ * Set up PWM with frequency and range
+ *
+ * @param    gpio_pin   GPIO pin
+ * @param    frequency  PWM pulse frequency
+ * @param    mode       hardware PWM mode (@ref pwm_channel_op_mode_t)
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if the GPIO resource manager not available to connect to
+ *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
+ *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number or pulse frequency or mode provided
+ */
 int rpi_gpio_setup_pwm(int gpio_pin, unsigned frequency, unsigned mode);
 
-/* Set PWM duty cycle */
-int rpi_gpio_set_pwm_duty_cycle(int gpio_pin, float value);
+/**
+ * Set PWM duty cycle
+ *
+ * @param    gpio_pin    GPIO pin
+ * @param    percentage  percentage of the pulse width when the voltage is high
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if the GPIO resource manager not available to connect to
+ *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
+ *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number or percentage provided
+ */
+int rpi_gpio_set_pwm_duty_cycle(int gpio_pin, float percentage);
 
-/* Read GPIO configuration (input/output) */
+/**
+ * Read GPIO configuration (input/output)
+ *
+ * @param    gpio_pin       GPIO pin
+ * @param    configuration  pin configuration (output) (@ref gpio_config_t)
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if the GPIO resource manager not available to connect to
+ *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
+ *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number provided
+ */
 int rpi_gpio_get_setup(int gpio_pin, unsigned *configuration);
 
-/* Turn GPIO PIN on/off */
+/**
+ * Turn GPIO PIN on/off
+ *
+ * @param    gpio_pin  GPIO pin
+ * @param    level     voltage level (@ref gpio_level_t)
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if the GPIO resource manager not available to connect to
+ *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
+ *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number or voltage level provided
+ */
 int rpi_gpio_output(int gpio_pin, unsigned level);
 
-/* Read GPIO PIN level */
+/**
+ * Read GPIO PIN level
+ *
+ * @param    gpio_pin  GPIO pin
+ * @param    level     voltage level (output)
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if the GPIO resource manager not available to connect to
+ *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
+ *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number provided
+ */
 int rpi_gpio_get_output(int gpio_pin, unsigned *level);
 
-/* Report on a GPIO event asynchronously */
+/**
+ * Report on a GPIO event asynchronously
+ *
+ * @param    gpio_pin  GPIO pin
+ * @param    coid      communication ID
+ * @param    event     GPIO event of interest (@ref gpio_change_event_t)
+ * @param    event_id  event ID for notification
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if the GPIO resource manager not available to connect to
+ *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
+ *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number or voltage level provided
+ */
 int rpi_gpio_add_event_detect(int gpio_pin, int coid, unsigned event, unsigned event_id);
 
-#endif /* RPI_GPIO_API_H */
+/**
+ * Cleanup GPIO API resources
+ *
+ * @returns  GPIO_SUCCESS                  on success
+ *           GPIO_ERROR_NOT_CONNECTED      if resource manager not available to connect to
+ *           GPIO_ERROR_CLEANING_UP        if there is a failure disconnecting from the resource manager
+ */
+int rpi_gpio_cleanup();
+
+#endif
