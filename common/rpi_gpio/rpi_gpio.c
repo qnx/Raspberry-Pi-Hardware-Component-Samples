@@ -93,7 +93,7 @@ int rpi_gpio_cleanup()
 
     if (gpio_fd != -1)
     {
-        status = close("/dev/gpio/msg");
+        status = close(gpio_fd);
         if (status)
         {
             perror("close");
