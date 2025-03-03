@@ -19,7 +19,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-#include "rpi_spi.h"
+#include "public/rpi_spi.h"
 
 #define SPI_DEVICE_FILENAME_FORMAT "/dev/io-spi/spi%d/dev%d"
 

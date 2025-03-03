@@ -78,17 +78,15 @@ enum gpio_pull_t
 /* GPIO pin level */
 enum gpio_level_t
 {
-    GPIO_LOW,
-    GPIO_HIGH
+    GPIO_LOW = 4,
+    GPIO_HIGH = 8
 };
 
-/* GPIO pin change events */
-enum gpio_change_event_t
+/* GPIO pin level */
+enum gpio_level_change_t
 {
-    GPIO_RISING = 2,
-    GPIO_FALLING = 3,
-    GPIO_BOTH = 4,
-    GPIO_ALL = 5
+    GPIO_RISING = 1,
+    GPIO_FALLING = 2,
 };
 
 /* PWM channel operation mode */
@@ -189,14 +187,15 @@ int rpi_gpio_output(int gpio_pin, unsigned level);
  *           GPIO_ERROR_MSG_NOT_SENT       if command message is not sent to the GPIO resource manager
  *           GPIO_ERROR_INPUT_OUT_OF_RANGE invalid pin number provided
  */
-int rpi_gpio_get_output(int gpio_pin, unsigned *level);
+int rpi_gpio_input(int gpio_pin, unsigned *level);
 
 /**
  * Report on a GPIO event asynchronously
  *
  * @param    gpio_pin  GPIO pin
  * @param    coid      communication ID
- * @param    event     GPIO event of interest (@ref gpio_change_event_t)
+ * @param    event     GPIO even of interest
+ *                     (combination of flags from @ref gpio_level_change_t and  @ref gpio_level_t) 
  * @param    event_id  event ID for notification
  *
  * @returns  GPIO_SUCCESS                  on success

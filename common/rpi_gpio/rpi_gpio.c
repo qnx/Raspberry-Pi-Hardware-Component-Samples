@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/neutrino.h>
-#include "rpi_gpio.h"
+#include "public/rpi_gpio.h"
 
 // File descriptor to communicate with resource manager
 static int gpio_fd = -1;
@@ -61,6 +61,24 @@ static int gpio_send_msg(void *buffer, size_t buffer_size)
     if (status != GPIO_SUCCESS)
     {
         perror("MsgSend");
+        return GPIO_ERROR_MSG_NOT_SENT;
+    }
+
+    return GPIO_SUCCESS;
+}
+
+// Send a message to the GPIO resource manager and receive a reply in the same buffer
+static int gpio_send_receive_msg(void *buffer, size_t buffer_size)
+{
+    pthread_mutex_lock(&gpio_fd_mutex);
+
+    int status = MsgSend(gpio_fd, buffer, buffer_size, buffer, buffer_size);
+
+    pthread_mutex_unlock(&gpio_fd_mutex);
+
+    if (status != GPIO_SUCCESS)
+    {
+        perror("MsgSendReceive");
         return GPIO_ERROR_MSG_NOT_SENT;
     }
 
@@ -115,8 +133,9 @@ int rpi_gpio_setup(int gpio_pin, unsigned configuration)
         return GPIO_ERROR_NOT_CONNECTED;
     }
 
-    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT) {
-         return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
     }
 
     // Configure as an input or output.
@@ -159,8 +178,9 @@ int rpi_gpio_setup_pull(int gpio_pin, unsigned configuration, unsigned direction
         return GPIO_ERROR_NOT_CONNECTED;
     }
 
-    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT) {
-         return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
     }
 
     // Configure as pull up or down
@@ -207,8 +227,9 @@ int rpi_gpio_get_setup(int gpio_pin, unsigned *configuration)
         return GPIO_ERROR_NOT_CONNECTED;
     }
 
-    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT) {
-         return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
     }
 
     // Query whether pin is an input or output.
@@ -216,12 +237,11 @@ int rpi_gpio_get_setup(int gpio_pin, unsigned *configuration)
         .hdr.type = _IO_MSG,
         .hdr.subtype = RPI_GPIO_GET_SELECT,
         .hdr.mgrid = RPI_GPIO_IOMGR,
-        .gpio = gpio_pin,
-        .value = 0};
+        .gpio = gpio_pin};
 
-    if (gpio_send_msg(&msg, sizeof(msg)))
+    if (gpio_send_receive_msg(&msg, sizeof(msg)))
     {
-        perror("gpio_send_msg(get_inout)");
+        perror("gpio_send_receive_msg(get_inout)");
         return GPIO_ERROR_MSG_NOT_SENT;
     }
 
@@ -252,11 +272,12 @@ int rpi_gpio_output(int gpio_pin, unsigned level)
         return GPIO_ERROR_NOT_CONNECTED;
     }
 
-    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT) {
-         return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
     }
 
-    // Query whether pin is an input or output.
+    // Set the pin high or low
     rpi_gpio_msg_t msg = {
         .hdr.type = _IO_MSG,
         .hdr.subtype = RPI_GPIO_WRITE,
@@ -287,7 +308,7 @@ int rpi_gpio_output(int gpio_pin, unsigned level)
     return GPIO_SUCCESS;
 }
 
-int rpi_gpio_get_output(int gpio_pin, unsigned *level)
+int rpi_gpio_input(int gpio_pin, unsigned *level)
 {
     // Connect to the GPIO resource manager, if not connected already
     if (gpio_msg_connect())
@@ -296,8 +317,9 @@ int rpi_gpio_get_output(int gpio_pin, unsigned *level)
         return GPIO_ERROR_NOT_CONNECTED;
     }
 
-    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT) {
-         return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
     }
 
     // Query whether pin is high or low
@@ -306,11 +328,11 @@ int rpi_gpio_get_output(int gpio_pin, unsigned *level)
         .hdr.subtype = RPI_GPIO_READ,
         .hdr.mgrid = RPI_GPIO_IOMGR,
         .gpio = gpio_pin,
-        .value = 0};
+        .value = 1};
 
-    if (gpio_send_msg(&msg, sizeof(msg)))
+    if (gpio_send_receive_msg(&msg, sizeof(msg)))
     {
-        perror("gpio_send_msg(get_highlow)");
+        perror("gpio_send_receive_msg(get_highlow)");
         return GPIO_ERROR_MSG_NOT_SENT;
     }
 
@@ -341,8 +363,9 @@ int rpi_gpio_add_event_detect(int gpio_pin, int coid, unsigned event, unsigned e
         return GPIO_ERROR_NOT_CONNECTED;
     }
 
-    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT) {
-         return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
     }
 
     rpi_gpio_event_t event_msg = {
@@ -351,79 +374,43 @@ int rpi_gpio_add_event_detect(int gpio_pin, int coid, unsigned event, unsigned e
         .hdr.mgrid = RPI_GPIO_IOMGR,
         .gpio = gpio_pin};
 
-    for (int index = 0; index < 4; index++)
+    event_msg.detect = 0;
+    if (event & GPIO_RISING)
     {
-        // break out after first loop if not requesting both or all events
-        if (index > 0 && (event != GPIO_BOTH || event != GPIO_ALL))
-        {
-            break;
-        }
+        event_msg.detect |= RPI_EVENT_EDGE_RISING;
+    }
+    if (event & GPIO_FALLING)
+    {
+        event_msg.detect |= RPI_EVENT_EDGE_FALLING;
+    }
 
-        switch (event)
-        {
-        case GPIO_RISING:
-            event_msg.detect = RPI_EVENT_EDGE_RISING;
-            break;
+    if (event & GPIO_HIGH)
+    {
+        event_msg.detect |= RPI_EVENT_LEVEL_HIGH;
+    }
 
-        case GPIO_FALLING:
-            event_msg.detect = RPI_EVENT_EDGE_FALLING;
-            break;
+    if (event & GPIO_LOW)
+    {
+        event_msg.detect |= RPI_EVENT_LEVEL_LOW;
+    }
+    printf("event_msg.detect: %d\n", event_msg.detect);
 
-        case GPIO_HIGH:
-            event_msg.detect = RPI_EVENT_LEVEL_HIGH;
-            break;
+    if (event_msg.detect == 0)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    }
 
-        case GPIO_LOW:
-            event_msg.detect = RPI_EVENT_LEVEL_LOW;
-            break;
+    SIGEV_PULSE_INIT(&event_msg.event, coid, -1, _PULSE_CODE_MINAVAIL, event_id);
+    if (gpio_msg_register_event(&event_msg.event))
+    {
+        perror("gpio_send_msg(event)");
+        return GPIO_ERROR_MSG_EVENT_NOT_REGISTERED;
+    }
 
-        case GPIO_BOTH:
-            switch (index)
-            {
-            case 0:
-                event_msg.detect = RPI_EVENT_EDGE_RISING;
-                break;
-            case 1:
-                event_msg.detect = RPI_EVENT_EDGE_FALLING;
-                break;
-            }
-            break;
-
-        case GPIO_ALL:
-            switch (index)
-            {
-            case 0:
-                event_msg.detect = RPI_EVENT_EDGE_RISING;
-                break;
-            case 1:
-                event_msg.detect = RPI_EVENT_EDGE_FALLING;
-                break;
-            case 2:
-                event_msg.detect = RPI_EVENT_LEVEL_HIGH;
-                break;
-            case 3:
-                event_msg.detect = RPI_EVENT_LEVEL_LOW;
-                break;
-            }
-            break;
-
-        default:
-            return GPIO_ERROR_INPUT_OUT_OF_RANGE;
-            break;
-        };
-
-        SIGEV_PULSE_INIT(&event_msg.event, coid, -1, _PULSE_CODE_MINAVAIL, event_id);
-        if (gpio_msg_register_event(&event_msg.event))
-        {
-            perror("gpio_send_msg(event)");
-            return GPIO_ERROR_MSG_EVENT_NOT_REGISTERED;
-        }
-
-        if (gpio_send_msg(&event_msg, sizeof(event_msg)))
-        {
-            perror("gpio_send_msg(event)");
-            return GPIO_ERROR_MSG_NOT_SENT;
-        }
+    if (gpio_send_msg(&event_msg, sizeof(event_msg)))
+    {
+        perror("gpio_send_msg(event)");
+        return GPIO_ERROR_MSG_NOT_SENT;
     }
 
     return GPIO_SUCCESS;
@@ -438,8 +425,9 @@ int rpi_gpio_setup_pwm(int gpio_pin, unsigned frequency, unsigned mode)
         return GPIO_ERROR_NOT_CONNECTED;
     }
 
-    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT) {
-         return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    if (gpio_pin < 0 || gpio_pin >= GPIO_COUNT)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
     }
 
     // Configure as PWM
@@ -484,8 +472,9 @@ int rpi_gpio_set_pwm_duty_cycle(int gpio_pin, float percentage)
         return GPIO_ERROR_NOT_CONNECTED;
     }
 
-    if (percentage < 0.0 || percentage > 100.0) {
-         return GPIO_ERROR_INPUT_OUT_OF_RANGE;
+    if (percentage < 0.0 || percentage > 100.0)
+    {
+        return GPIO_ERROR_INPUT_OUT_OF_RANGE;
     }
 
     // Set duty cycle

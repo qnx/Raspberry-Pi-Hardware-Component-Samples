@@ -1,10 +1,11 @@
-# rpi_i2c
+# librpi_i2c
 
-This folder contains a client API for interacting with
-the I2C driver.  The API was designed to be
-similar and as easy to use as the SMBus Python API.
+This folder contains a client API, implemented as shared
+library, for interacting with the I2C driver.  The API was
+designed to be similar and as easy to use as the SMBus Python
+module.
 
-Note that currently any app using this API needs to be
+Note that currently any app using this client API needs to be
 executed as root to access the I2C device driver.
 
 ## smbus_read_byte_data
