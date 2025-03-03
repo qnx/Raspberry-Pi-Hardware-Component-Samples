@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "rpi_i2c.h"
+#include "public/rpi_i2c.h"
 
 #define I2C_FILENAME_FORMAT "/dev/i2c%d"
 #define MAX_I2C_BUSES       10 // TODO: Is this correct?
