@@ -8,15 +8,15 @@ We will demonstrate with 2 different hardward layouts, both of which work with t
 
 ## Pin Configuration
 
-Wire the LED according to one of th following schematic diagrams and connect to the Raspberry Pi.
+Wire the LED according to one of the following schematic diagrams and connect to the Raspberry Pi.
 
 - Red wire to GPIO 16 (pin 36)
-- Black wire goes to pin 14 (Ground)
+- Black wire to pin 14 (Ground)
 
 ## Schematic Diagrams
 
 This diagram shows a simple LED which as a built in resistor and can be directly connected to the Raspberry Pi.
-<img src="./circuit_led_with_resistor.png" width="50%" />
+<img src="./circuit-led-with-resistor.png" width="50%" />
 
 This diagram shows a simple LED with a separate resitor connected to a breadboard and then to the Raspberry Pi.
-<img src="./circuit_led_breadboard.png" width="50%" />
+<img src="./circuit-led-breadboard.png" width="50%" />
