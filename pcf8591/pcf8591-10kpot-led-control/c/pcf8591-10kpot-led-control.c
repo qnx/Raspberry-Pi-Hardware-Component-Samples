@@ -67,6 +67,8 @@ int main(int argc, char **argv)
         {
             printf("New 10K POT value: %d\n", value);
 
+	    prev_value = value;
+
             // output input value from 10K pot to analog out to control voltage to the LED
             if (smbus_write_byte_data(PI_SMB_BUS, PCF8591_ADDRESS, PCF8591_AOU0, value)) // single DAC output
             {

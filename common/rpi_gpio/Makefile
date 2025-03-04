@@ -1,5 +1,5 @@
 #Build artifact type, possible values shared, static and exe
-ARTIFACT_TYPE = shared
+ARTIFACT_TYPE = static
 PROJECT_NAME = rpi_gpio
 
 LDFLAGS_shared = -shared -o

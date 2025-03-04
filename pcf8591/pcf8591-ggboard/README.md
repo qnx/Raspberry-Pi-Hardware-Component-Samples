@@ -1,7 +1,7 @@
 # Reading multiple devices from the Gump's Grocer PCF8591 board
 
-This sample application demonstrates how to use
-a PCF8591 chip with the RaspBerry PI 4B to read the values from the different devices incorporated into the Gump's Grocer PC8951 board.
+This sample application demonstrates how to use a PCF8591 chip with the RaspBerry PI 4B
+to read the values from the different devices incorporated into the Gump's Grocer PC8951 board.
 
 The board incorporates:
 

@@ -26,7 +26,7 @@ Writes a block of bytes specified at a specific address with a specific register
 
 ## smbus_cleanup
 
-Cleanup I2C API resources
+Clean up I2C API resources
 
 ---
 See [rpi_i2c.h](rpi_i2c.h) for more details.

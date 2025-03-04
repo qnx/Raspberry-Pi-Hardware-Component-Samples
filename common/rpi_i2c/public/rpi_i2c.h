@@ -103,7 +103,7 @@ int smbus_write_byte_data(unsigned bus_number, uint8_t i2c_address, uint8_t regi
 int smbus_write_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t register_val, uint8_t *block_buffer, uint8_t block_size);
 
 /**
- * Cleanup I2C API resources
+ * Clean up I2C API resources
  *
  * @param    bus_number      I2C bus number
  *

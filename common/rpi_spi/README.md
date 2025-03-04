@@ -30,5 +30,5 @@ Write/read data to/from the SPI interface
 Cleanup from using the SPI device
 
 ---
-See [rpi_i2c.h](rpi_i2c.h) for more details.
+See [rpi_spi.h](rpi_spi.h) for more details.
 
