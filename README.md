@@ -28,4 +28,4 @@ Get a free, non-commercial QNX Software Development Platform 8.0 license at [htt
 
 ## Contributor Guidelines
 
-TBD
+Feel free to submit changes or updates to this repo to resolve issues or improve features.
