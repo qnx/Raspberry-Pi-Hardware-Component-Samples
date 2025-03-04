@@ -18,4 +18,4 @@ The servo has three wires: brown/black (ground), red (power) and orange/yellow (
 
 ## Schematic Diagram
 
-<img src="./circuit_servo.png" width="50%" />
+<img src="./circuit-servo.png" width="50%" />
