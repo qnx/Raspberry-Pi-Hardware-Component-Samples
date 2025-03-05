@@ -4,7 +4,7 @@
 @brief SparkFun ICM‑20948 9DoF IMU Example for QNX.
  
 This example demonstrates how to interface with the SparkFun Qwiic ICM‑20948
-9DoF IMU over I²C on a QNX system using Python's smbus module. It:
+9DoF IMU over I2C on a QNX system using Python's smbus module. It:
   - Initializes the sensor (wakes it and configures the accelerometer and gyroscope).
   - Reads the WHO_AM_I register (expected value: 0xEA).
   - Calibrates the sensor while it is stationary (computes offsets).
@@ -30,7 +30,7 @@ import sys
 ## --------------------------------------------------------------------------
 ## Definitions
 ## --------------------------------------------------------------------------
-I2C_BUS = 1                     # I²C bus number
+I2C_BUS = 1                     # I2C bus number
 ICM20948_ADDR = 0x68            # ICM‑20948 I2C address (use 0x69 when AD0 is high or else 0x68 when AD0 is low)
  
 REG_BANK_SEL = 0x7F           # Register bank selection register
@@ -378,4 +378,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\nExiting IMU demo.")
         sys.exit(0)
-                

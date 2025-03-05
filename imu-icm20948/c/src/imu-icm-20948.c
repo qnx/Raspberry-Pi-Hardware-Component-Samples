@@ -3,7 +3,7 @@
 * @brief SparkFun ICM‑20948 9DoF IMU Example for QNX.
 *
 * This example demonstrates how to interface with the SparkFun Qwiic ICM‑20948
-* 9DoF IMU over I²C on a QNX system. It:
+* 9DoF IMU over I2C on a QNX system. It:
 *   - Initializes the sensor (wakes it and configures the accelerometer and gyroscope).
 *   - Reads the WHO_AM_I register (expected value: 0xEA).
 *   - Calibrates the sensor while it is stationary (computes offsets).
@@ -32,7 +32,7 @@
 /* --------------------------------------------------------------------------
 * Definitions
 * ------------------------------------------------------------------------*/
-// I²C bus 
+// I2C bus 
 #define I2C_BUS         1
  
 // ICM‑20948 I2C address (use 0x69 when AD0 is high or else 0x68 when AD0 is low)
