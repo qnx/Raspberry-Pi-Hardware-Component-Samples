@@ -11,14 +11,18 @@ OUTPUT_DIR = build/$(CONFIG_NAME)
 TARGET = $(OUTPUT_DIR)/$(ARTIFACT)
 
 #Compiler definitions
-
 CC = qcc -Vgcc_nto$(PLATFORM)
 CXX = q++ -Vgcc_nto$(PLATFORM)_cxx
 LD = $(CC)
 
-#Compiler flags for build profiles
+#User defined include/preprocessor flags and libraries
+INCLUDES += -I../../common/system/gpio
+INCLUDES += -I../../common/rpi_gpio/public
 
-CCFLAGS += -I../../common/system/gpio -I../../common/rpi_gpio
+LIBS += -L../../common/rpi_gpio/build/aarch64le-debug
+LIBS += -lm -lrpi_gpio
+
+#Compiler flags for build profiles
 CCFLAGS_release += -O2
 CCFLAGS_debug += -g -O0 -fno-builtin
 CCFLAGS_coverage += -g -O0 -ftest-coverage -fprofile-arcs
@@ -39,7 +43,7 @@ DEPS = -Wp,-MMD,$(@:%.o=%.d),-MT,$@
 rwildcard = $(wildcard $(addprefix $1/*.,$2)) $(foreach d,$(wildcard $1/*),$(call rwildcard,$d,$2))
 
 #Source list
-SRCS = $(call rwildcard, src, c) $(call rwildcard, ../../common, c)
+SRCS = $(call rwildcard, src, c)
 
 #Object files list
 OBJS = $(addprefix $(OUTPUT_DIR)/,$(addsuffix .o, $(basename $(SRCS))))
@@ -49,8 +53,11 @@ $(OUTPUT_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 
+librpi_gpio.a:
+	$(MAKE) -C../../common/rpi_gpio
+
 #Linking rule
-$(TARGET):$(OBJS)
+$(TARGET):$(OBJS) librpi_gpio.a
 	$(LD) -o $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
 
 #Rules section for default compilation and linking
