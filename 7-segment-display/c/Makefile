@@ -1,4 +1,4 @@
-ARTIFACT = led-button
+ARTIFACT = 7-segment-display
 
 #Build architecture/variant string, possible values: x86, armv7le, etc...
 PLATFORM ?= aarch64le
