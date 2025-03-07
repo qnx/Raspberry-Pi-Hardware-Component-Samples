@@ -53,15 +53,15 @@ $(OUTPUT_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 
-librpi_gpio.a:
-	$(MAKE) -C../../common/rpi_gpio
-
 #Linking rule
 $(TARGET):$(OBJS) librpi_gpio.a
 	$(LD) -o $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
 
 #Rules section for default compilation and linking
 all: $(TARGET)
+
+librpi_gpio.a:
+	$(MAKE) -C../../common/rpi_gpio
 
 clean:
 	rm -fr $(OUTPUT_DIR)
