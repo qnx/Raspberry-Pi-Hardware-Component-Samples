@@ -2,8 +2,8 @@
 
 ## Overview
 
-This section will contain several sample applications for driving LED strips and matrices using
-the RaspBerry PI's SPI0 device.
+This section contains several sample applications for driving LED strips and matrices using
+the RaspBerry PI's SPI0 interface.
 
 The sample applications use two or more of the following libraries:
 
@@ -16,24 +16,29 @@ The sample applications use two or more of the following libraries:
 This library provides the underlying logic to communicate with the SPI driver.  Sample applications only have to link this library
 and they are not accessing its APIs directly.
 
+[librpi_spi](../common/librpi_spi)
+
 ### librpi_ws281x
 
-This library provides a somewhat generic API to write colours to a collection of WS 281x LEDs.  It is suitable for simpler control of
-one or more LED strips or a LED matrix but it does not contain specialized logic for managing matrices in a transparent fashion.
+This library provides a somewhat generic API to write colors to a collection of WS 281x LEDs.  It is suitable for simpler control of
+one or more LED strips, or one or more LED matrixes, but it does not contain specialized logic for managing matrices in a transparent fashion.
 
-This library is a smaller port of the Linux library of the same name (https://github.com/jgarff/rpi_ws281x) but the port focuses only 
-on the SPI driver of the original library but the implementation of the SPI logic is based on librpi_spi.  The interface has been mostly
+This library is a smaller port of the Linux library of the same name [https://github.com/jgarff/rpi_ws281x](https://github.com/jgarff/rpi_ws281x),
+but the port focuses only on the SPI driver of the original library and the implementation of the SPI logic is based on
+[librpi_spi](../common/librpi_spi).  The interface has been mostly
 retained but some minor changes were made because the port only covers SPI functionality.
 
 The [rpi-ws281x-rainbow](rpi-ws281x-rainbow) sample application demonstrates how to use this API.
 
+[librpi_ws281x](../common/librpi_ws281x)
+
 ### libmini_fastled
  
 The mini_fastled library is based on the well known FastLED library (https://fastled.io/) but is not a complete port, at least not yet.
-The QNX port has some significant differences from the originals
-- The QNX port is based on a C API instead of C++, but the API is meant to be similar in some ways to the INO script APIs for FastLED, so that
+The QNX port has some significant differences from the original library:
+- The QNX port is based on a C APa,I instead of C++, but the API is meant to be similar in some ways to the INO script APIs for FastLED, so that
   translation from INO script to C code is not too onerous.
-- The library is layered on librpi_ws281x, so certain types are matched under the hood to that library's datatypes.
+- The library is layered on [librpi_ws281x](../common/librpi_ws281x), so certain data types are matched under the hood to that library's data types.
 - Some of the lower level code required for tiny processors supported by FastLED is replaced with aliases to C functions for the RaspBerry PI.
 
 Our goal is to port several INO script examples from the FastLED web site to sample applications to provide a fairly good coverage of the
@@ -44,8 +49,8 @@ interesting functionality that is provided by FastLED.
 ### rpi-ws281x-rainbow
 
 This folder contains code for a simple demonstration of how to use the rpi_ws281x library to drive an LED matrix.
-The sample application assigns some colours to a strip of LEDs that render a rainbow over twenty pixels and then
-shift up and over the coloured pixels.
+The sample application assigns some colors to a strip of LEDs that render a rainbow over twenty pixels and then
+shift up and over the colored pixels.
 
 [rpi-ws281x-rainbow](rpi-ws281x-rainbow)
 

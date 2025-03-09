@@ -53,8 +53,6 @@ rwildcard = $(wildcard $(addprefix $1/*.,$2)) $(foreach d,$(wildcard $1/*),$(cal
 INCLUDES += -I../system/gpio
 INCLUDES += -I../rpi_spi/public
 
-LIBS += 
-
 #Source list
 SRCS = $(call rwildcard, ., c cpp)
 

@@ -208,7 +208,7 @@ ws2811_return_t ws2811_wait(ws2811_t *ws2811);
 const char * ws2811_get_return_t_str(const ws2811_return_t state);
 
 /**
- * Set a gamma factor to correct for LED brightness levels
+ * Set a gamma factor to correct for LED brightness levels.
  *
  * @param    ws2811  ws2811 instance pointer.
  * @param    gamma_factor  gamma correction factor 
@@ -219,7 +219,7 @@ void ws2811_set_custom_gamma_factor(ws2811_t *ws2811, double gamma_factor);
 
 /* New capabilities added to the library to aid with the port of another LED library integrating this library */
 /**
- * Set a color correction factor to correct for LED brightness levels
+ * Set a color correction factor to correct for LED brightness levels.
  *
  * @param    ws2811  ws2811 instance pointer.
  * @param    color_correction  color correction 
@@ -229,7 +229,7 @@ void ws2811_set_custom_gamma_factor(ws2811_t *ws2811, double gamma_factor);
 void ws2811_set_color_correction(ws2811_t *ws2811, ws2811_led_t color_correction);
 
 /**
- * Set a color temperature factor to correct for LED brightness levels
+ * Set a color temperature factor to correct for LED brightness levels.
  *
  * @param    ws2811  ws2811 instance pointer.
  * @param    color_temperature  color temperature 
