@@ -105,13 +105,6 @@ typedef struct ws2811_channel_t
     int strip_type;                              //< Strip color layout -- one of WS2811_STRIP_xxx constants
     ws2811_led_t *leds;                          //< LED buffers, allocated by driver based on count
     uint8_t brightness;                          //< Brightness value between 0 and 255
-    /* added extra fields to support LED power savings */
-    /*
-	uint16_t m_nFPS;          ///< tracking for current frames per second (FPS) value
-	uint32_t m_nMinMicros;    ///< minimum µs between frames, used for capping frame rates
-	uint32_t m_nPowerData;    ///< max power use parameter
-	power_func m_pPowerFunc;  ///< function for overriding brightness when using FastLED.show();
-    */
     uint8_t wshift;                              //< White shift value
     uint8_t rshift;                              //< Red shift value
     uint8_t gshift;                              //< Green shift value
@@ -141,16 +134,6 @@ typedef struct ws2811_t
             X(-12, WS2811_ERROR_PCM_SETUP, "Unable to initialize PCM"),                     \
             X(-13, WS2811_ERROR_SPI_SETUP, "Unable to initialize SPI"),                     \
             X(-14, WS2811_ERROR_SPI_TRANSFER, "SPI transfer error")                         \
-            /*
-            X(-3, WS2811_ERROR_HW_NOT_SUPPORTED, "Hardware revision is not supported"),     \
-            X(-4, WS2811_ERROR_MEM_LOCK, "Memory lock failed"),                             \
-            X(-5, WS2811_ERROR_MMAP, "mmap() failed"),                                      \
-            X(-6, WS2811_ERROR_MAP_REGISTERS, "Unable to map registers into userspace"),    \
-            X(-7, WS2811_ERROR_GPIO_INIT, "Unable to initialize GPIO"),                     \
-            X(-8, WS2811_ERROR_PWM_SETUP, "Unable to initialize PWM"),                      \
-            X(-9, WS2811_ERROR_MAILBOX_DEVICE, "Failed to create mailbox device"),          \
-            X(-10, WS2811_ERROR_DMA, "DMA error"),                                          \
-            */
 
 #define WS2811_RETURN_STATES_ENUM(state, name, str) name = state
 #define WS2811_RETURN_STATES_STRING(state, name, str) str

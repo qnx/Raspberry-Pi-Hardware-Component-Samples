@@ -47,4 +47,4 @@ Set a color temperature factor to correct for LED brightness levels.
 (not in original library)
 
 ---
-See [rpi_ws281x.h](public/rpi_ws281x) for more details.
+See [rpi_ws281x.h](public/rpi_ws281x.h) for more details.
