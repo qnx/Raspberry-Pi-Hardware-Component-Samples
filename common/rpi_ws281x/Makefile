@@ -1,6 +1,6 @@
 #Build artifact type, possible values shared, static and exe
-ARTIFACT_TYPE = exe
-PROJECT_NAME = pcf8591-10kpot-led-control
+ARTIFACT_TYPE = static
+PROJECT_NAME = rpi_ws281x
 
 LDFLAGS_shared = -shared -o
 ARTIFACT_NAME_shared = lib$(PROJECT_NAME).so
@@ -30,14 +30,6 @@ CXX = q++ -Vgcc_nto$(PLATFORM)_cxx
 
 LD = $(CC)
 
-#User defined include/preprocessor flags and libraries
-
-INCLUDES += -I../../../common/system/gpio
-INCLUDES += -I../../../common/rpi_i2c/public
-
-LIBS += -L../../../common/rpi_i2c/build/aarch64le-debug
-LIBS += -lm -lrpi_i2c
-
 #Compiler flags for build profiles
 CCFLAGS_release += -O2
 CCFLAGS_debug += -g -O0 -fno-builtin
@@ -57,31 +49,35 @@ DEPS = -Wp,-MMD,$(@:%.o=%.d),-MT,$@
 #Macro to expand files recursively: parameters $1 -  directory, $2 - extension, i.e. cpp
 rwildcard = $(wildcard $(addprefix $1/*.,$2)) $(foreach d,$(wildcard $1/*),$(call rwildcard,$d,$2))
 
+# includes
+INCLUDES += -I../system/gpio
+INCLUDES += -I../rpi_spi/public
+
 #Source list
-SRCS = $(call rwildcard, ., c cpp) 
+SRCS = $(call rwildcard, ., c cpp)
 
 #Object files list
 OBJS = $(addprefix $(OUTPUT_DIR)/,$(addsuffix .o, $(basename $(SRCS))))
 
 #Compiling rule for c
 $(OUTPUT_DIR)/%.o: %.c
-	-@mkdir -p $(dir $@)
+	-@mkdir -p $(OUTPUT_DIR)
 	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 
 #Compiling rule for c++
 $(OUTPUT_DIR)/%.o: %.cpp
-	-@mkdir -p $(dir $@)
+	-@mkdir -p $(OUTPUT_DIR)
 	$(CXX) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 
 #Linking rule
-$(TARGET):$(OBJS) librpi_i2c.a
+$(TARGET):$(OBJS) librpi_spi.a
 	$(LD) $(LDFLAGS_$(ARTIFACT_TYPE)) $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
 
 #Rules section for default compilation and linking
 all: $(TARGET)
 
-librpi_i2c.a:
-	$(MAKE) -C../../../common/rpi_i2c
+librpi_spi.a:
+	$(MAKE) -C../rpi_spi
 
 CLEAN_DIRS := $(shell find build -type d)
 CLEAN_PATTERNS := *.o *.d $(ARTIFACT_NAME_exe) $(ARTIFACT_NAME_shared) $(ARTIFACT_NAME_static)

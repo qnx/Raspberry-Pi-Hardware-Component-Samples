@@ -73,15 +73,15 @@ $(OUTPUT_DIR)/%.o: %.cpp
 	-@mkdir -p $(dir $@)
 	$(CXX) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 
-librpi_i2c.a:
-	$(MAKE) -C../../../common/rpi_i2c
-
 #Linking rule
 $(TARGET):$(OBJS) librpi_i2c.a
 	$(LD) $(LDFLAGS_$(ARTIFACT_TYPE)) $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
 
 #Rules section for default compilation and linking
 all: $(TARGET)
+
+librpi_i2c.a:
+	$(MAKE) -C../../../common/rpi_i2c
 
 CLEAN_DIRS := $(shell find build -type d)
 CLEAN_PATTERNS := *.o *.d $(ARTIFACT_NAME_exe) $(ARTIFACT_NAME_shared) $(ARTIFACT_NAME_static)

@@ -1,6 +1,6 @@
 #Build artifact type, possible values shared, static and exe
 ARTIFACT_TYPE = exe
-PROJECT_NAME = pcf8591-10kpot-led-control
+PROJECT_NAME = rpi-ws281x-rainbow
 
 LDFLAGS_shared = -shared -o
 ARTIFACT_NAME_shared = lib$(PROJECT_NAME).so
@@ -32,11 +32,15 @@ LD = $(CC)
 
 #User defined include/preprocessor flags and libraries
 
-INCLUDES += -I../../../common/system/gpio
-INCLUDES += -I../../../common/rpi_i2c/public
+INCLUDES += -I../../common/system/gpio
+INCLUDES += -I../../common/rpi_spi/public
+INCLUDES += -I../../common/rpi_ws281x/public
 
-LIBS += -L../../../common/rpi_i2c/build/aarch64le-debug
-LIBS += -lm -lrpi_i2c
+LIBS += -L../../common/rpi_ws281x/build/aarch64le-debug
+LIBS += -lrpi_ws281x
+LIBS += -L../../common/rpi_spi/build/aarch64le-debug
+LIBS += -lrpi_spi
+LIBS += -lm
 
 #Compiler flags for build profiles
 CCFLAGS_release += -O2
@@ -74,14 +78,14 @@ $(OUTPUT_DIR)/%.o: %.cpp
 	$(CXX) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 
 #Linking rule
-$(TARGET):$(OBJS) librpi_i2c.a
+$(TARGET):$(OBJS) librpi_ws281x.a
 	$(LD) $(LDFLAGS_$(ARTIFACT_TYPE)) $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
 
 #Rules section for default compilation and linking
 all: $(TARGET)
 
-librpi_i2c.a:
-	$(MAKE) -C../../../common/rpi_i2c
+librpi_ws281x.a:
+	$(MAKE) -C../../common/rpi_ws281x
 
 CLEAN_DIRS := $(shell find build -type d)
 CLEAN_PATTERNS := *.o *.d $(ARTIFACT_NAME_exe) $(ARTIFACT_NAME_shared) $(ARTIFACT_NAME_static)
