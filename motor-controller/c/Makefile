@@ -19,7 +19,7 @@ CC = qcc -Vgcc_nto$(PLATFORM)
 LD = $(CC)
  
 # Include paths
-INCLUDES = -I../../common/system/gpio/ -I../../common/rpi_gpio
+INCLUDES = -I../../common/system/gpio/ -I../../common/rpi_gpio/public
  
 # Build profile flags
 CCFLAGS_release = -O2
@@ -31,25 +31,32 @@ CCFLAGS_all = -Wall -fmessage-length=0 $(CCFLAGS_$(BUILD_PROFILE)) $(INCLUDES)
 # Dependency generation flags
 DEPS = -Wp,-MMD,$(@:%.o=%.d),-MT,$@
  
-# Source files: drv8833-motor-driver.c and rpi_gpio.c
-SRCS = src/drv8833-motor-driver.c ../../common/rpi_gpio/rpi_gpio.c
+# Source files: drv8833-motor-driver.c
+SRCS = src/drv8833-motor-driver.c 
  
-# Object files list (explicitly naming objects)
-OBJS = $(OUTPUT_DIR)/drv8833-motor-driver.o $(OUTPUT_DIR)/rpi_gpio.o
+# Convert source file paths into object file paths in the build output directory
+OBJS = $(addprefix $(OUTPUT_DIR)/, $(SRCS:.c=.o))
  
-# Rule for compiling MotorDriver.c
-$(OUTPUT_DIR)/drv8833-motor-driver.o: src/drv8833-motor-driver.c
+# Rule for compiling .c files into .o
+$(OUTPUT_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEPS) -o $@ $(CCFLAGS_all) $<
  
-# Rule for compiling rpi_gpio.c
-$(OUTPUT_DIR)/rpi_gpio.o: ../../common/rpi_gpio/rpi_gpio.c
+# Rule for compiling .c files into .o
+$(OUTPUT_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEPS) -o $@ $(CCFLAGS_all) $<
+ 
+# Build static library for rpi_gpio from the common folder.
+librpi_gpio.a:
+	$(MAKE) -C ../../common/rpi_gpio
+ 
+# Add library search path and libraries (adjust path as needed)
+LIBS = -L../../common/rpi_gpio/build/$(CONFIG_NAME) -lrpi_gpio -lm
  
 # Linking rule to create the final binary
-$(TARGET): $(OBJS)
-	$(LD) -o $(TARGET) $(OBJS)
+$(TARGET): $(OBJS) librpi_gpio.a
+	$(LD) -o $(TARGET) $(OBJS) $(LIBS)
  
 # Default rule
 all: $(TARGET)
@@ -61,5 +68,5 @@ clean:
 # Rebuild: clean then build
 rebuild: clean all
  
-# Include dependency files (if present)
+# Include auto-generated dependency files if present
 -include $(OBJS:.o=.d)
