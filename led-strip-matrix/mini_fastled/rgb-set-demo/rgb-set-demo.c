@@ -48,7 +48,7 @@ void loop()
     // let's set an led value
     *(leds.get(&leds, i)) = CHSV(hue, 255, 255);
 
-    // now, let's first 20 leds to the top 20 leds,
+    // now, let's set the colors of the first 20 leds to the colors of the top 20 leds,
     leds.copyFrom(&leds, NUM_LEDS / 2, NUM_LEDS - 1, &leds, NUM_LEDS / 2 - 1, 0);
 
     FastLED_show();

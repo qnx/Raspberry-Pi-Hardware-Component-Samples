@@ -2,8 +2,7 @@
 
 ## Overview
 
-This folder contains a number of sample applications that have been adapted from INO examples from
-the FastLED web site.  Check the folder for more details.
+This folder contains a number of sample applications that have been adapted from INO examples from the FastLED web site.  Check the folder for more details.
 
 ## Content
 
@@ -18,11 +17,10 @@ brightness and temperature profiles.
 
 There are a couple of notable differences with the original:
 
-- A CRGBArray is used for the array of LEDs for easier porting
-- the data pin was changed to the appropriate value for RaspBerry PI 4
+- a CRGBArray is used for the array of LEDs for easier porting
+- the data pin was changed to the appropriate value for Raspberry Pi 4
 - the strip type was changed to match what would work for my LED matrix
-- the number of LEDs was changed to 256 to match the size LED matrix I was testing with, and all
-  LEDs are filled with the rainbow colours
+- the number of LEDs was changed to 256 to match the size LED matrix I was testing with, and all LEDs are filled with the rainbow colours
 - instead of just two temperature profiles used in the original sample, this version iterates through all of the temperature profiles (for 2 seconds each, instead of 5)
 
 [color-temperature](color-temperature)
@@ -38,7 +36,7 @@ It demonstrates a simple way to set LED colors in a rainbow using HSV colors com
 There are a couple of minor differences with the original:
 
 - the number of LEDs was changed to 256 to match the size LED matrix I was testing with
-- the data pin was changed to the appropriate value for RaspBerry PI 4
+- the data pin was changed to the appropriate value for Raspberry Pi 4
 - the hue is incremented more slowly in this example than the original for stretching the colors
 
 [rgb-set-demo](rgb-set-demo)
@@ -55,8 +53,7 @@ There are a couple of minor differences with the original:
 
 - the number of LEDs was changed to 256 to match the size LED matrix I was testing with
 - the data pin was changed to the appropriate value for RaspBerry PI 4
-- A CRGBArray is used for the array of LEDs for easier porting
-- some of the ported code is reordered with respect to the original script due to differences with C
-  dependency ordering.
+- a CRGBArray is used for the array of LEDs for easier porting
+- some of the ported code is reordered with respect to the original script due to differences with C dependency ordering
 
 [demo-reel-100](demo-reel-100)

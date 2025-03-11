@@ -2,8 +2,7 @@
 
 ## Overview
 
-This section contains several sample applications for driving LED strips and matrices using
-the RaspBerry PI's SPI0 interface.  The libraries are being updated to support more SPI interfaces as we gradually enable additional SPI interfaces in the Quickstart image.  Stay tuned for future updates.
+This section contains several sample applications for driving LED strips and matrices using the the Raspberry Pi's SPI0 interface.  The libraries are being updated to support more SPI interfaces as we gradually enable additional SPI interfaces in the quick start target image.  Stay tuned for future updates.
 
 The sample applications use two or more of the following libraries:
 
@@ -31,7 +30,7 @@ The [rpi-ws281x-rainbow](rpi-ws281x-rainbow) sample application demonstrates how
 
 ### libmini_fastled
 
-The mini_fastled library is based on the well known [FastLED](https://fastled.io/) library, but is not a complete port, at least not yet.  The current approach to the port was inspired by another attempted port to RaspBerry PI found at [https://github.com/apleschu/FastLED-Pi](https://github.com/apleschu/FastLED-Pi) which leveraged the Linux rpi_ws281x library as well, but the approach we used for mini_fastled differs in many ways.
+The mini_fastled library is based on the well known [FastLED](https://fastled.io/) library, but is not a complete port, at least not yet.  The current approach to the port was inspired by another attempted port to Raspberry Pi found at [https://github.com/apleschu/FastLED-Pi](https://github.com/apleschu/FastLED-Pi) which leveraged the Linux rpi_ws281x library as well, but the approach we used for mini_fastled differs in many ways.
 
 The QNX port has some significant differences from the original library:
 
@@ -61,6 +60,6 @@ the FastLED web site.  Check the folder for more details.
 
 ## Circuit
 
-This diagram shows a representation of a circuit connecting one LED strip to a RaspBerry PI 4, a 5V power supply and using a [74AHCT125 - Quad Level-Shifter (3V to 5V)](https://www.adafruit.com/product/1787) from AdaFruit as a level inverter to scale up the 3.3V voltage from the SPI0 MOSI output to the 5V required by the LED strip.
+This diagram shows a representation of a circuit connecting one LED strip to a Raspberry Pi 4, a 5V power supply and using a [74AHCT125 - Quad Level-Shifter (3V to 5V)](https://www.adafruit.com/product/1787) from AdaFruit as a level inverter to scale up the 3.3V voltage from the SPI0 MOSI output to the 5V required by the LED strip.
 
 ![circuit diagram connecting RaspBerry PI 4, 74AHCT125 chip, 5V power supply and LED strip](./led-strip-wiring.png)
