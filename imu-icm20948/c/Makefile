@@ -1,12 +1,10 @@
-# Makefile for DRV8833 Motor Driver (C code)
+# Artifact name: the final binary
+ARTIFACT = imu-icm-20948
  
-# Artifact name: output binary name
-ARTIFACT = drv8833-motor-driver
- 
-# Build architecture/variant string, e.g., aarch64le, x86_64le, etc.
+# Build architecture/variant string, e.g. aarch64le, x86_64le, etc.
 PLATFORM ?= aarch64le
  
-# Build profile, possible values: release, debug, profile, coverage
+# Build profile: possible values: release, debug, profile, coverage
 BUILD_PROFILE ?= debug
  
 # Derived variables for output directory and target binary
@@ -18,21 +16,23 @@ TARGET = $(OUTPUT_DIR)/$(ARTIFACT)
 CC = qcc -Vgcc_nto$(PLATFORM)
 LD = $(CC)
  
-# Include paths
-INCLUDES = -I../../common/system/gpio/ -I../../common/rpi_gpio/public
+# Include paths (adjusted: use the folder where rpi_i2c.h is now located)
+INCLUDES = -I../../common/rpi_i2c/public/
  
 # Build profile flags
 CCFLAGS_release = -O2
 CCFLAGS_debug   = -g -O0 -fno-builtin
+#CCFLAGS_profile  = -g -O0 -finstrument-functions
+#CCFLAGS_coverage = -g -O0 -ftest-coverage -fprofile-arcs
  
-# Generic compiler flags (common flags plus flags for the chosen profile)
+# Combine common flags with the profile-specific flags
 CCFLAGS_all = -Wall -fmessage-length=0 $(CCFLAGS_$(BUILD_PROFILE)) $(INCLUDES)
  
 # Dependency generation flags
 DEPS = -Wp,-MMD,$(@:%.o=%.d),-MT,$@
  
-# Source files: drv8833-motor-driver.c
-SRCS = src/drv8833-motor-driver.c 
+# Source files for your IMU demo (do not compile rpi_i2c.c directly)
+SRCS = src/imu-icm-20948.c
  
 # Convert source file paths into object file paths in the build output directory
 OBJS = $(addprefix $(OUTPUT_DIR)/, $(SRCS:.c=.o))
@@ -42,20 +42,15 @@ $(OUTPUT_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEPS) -o $@ $(CCFLAGS_all) $<
  
-# Rule for compiling .c files into .o
-$(OUTPUT_DIR)/%.o: %.c
-	@mkdir -p $(dir $@)
-	$(CC) -c $(DEPS) -o $@ $(CCFLAGS_all) $<
- 
-# Build static library for rpi_gpio from the common folder.
-librpi_gpio.a:
-	$(MAKE) -C ../../common/rpi_gpio
+# Build static library for rpi_i2c from the common folder.
+librpi_i2c.a:
+	$(MAKE) -C ../../common/rpi_i2c
  
 # Add library search path and libraries (adjust path as needed)
-LIBS = -L../../common/rpi_gpio/build/$(CONFIG_NAME) -lrpi_gpio -lm
+LIBS = -L../../common/rpi_i2c/build/$(CONFIG_NAME) -lrpi_i2c -lm
  
 # Linking rule to create the final binary
-$(TARGET): $(OBJS) librpi_gpio.a
+$(TARGET): $(OBJS) librpi_i2c.a
 	$(LD) -o $(TARGET) $(OBJS) $(LIBS)
  
 # Default rule

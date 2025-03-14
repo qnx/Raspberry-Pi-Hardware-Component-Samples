@@ -19,7 +19,7 @@ CC = qcc -Vgcc_nto$(PLATFORM)
 LD = $(CC)
  
 # Include paths 
-INCLUDES = -I../../common/system/gpio -I../../common/rpi_gpio
+INCLUDES = -I../../common/system/gpio -I../../common/rpi_gpio/public/
  
 # Build profile flags
 CCFLAGS_release = -O2
@@ -39,14 +39,21 @@ SRCS = src/Ultrasonic.c
 # Object files list (placed in OUTPUT_DIR)
 OBJS = $(addprefix $(OUTPUT_DIR)/, $(SRCS:.c=.o))
  
-# Rule for compiling .c files
+# Rule for compiling .c files into .o
 $(OUTPUT_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEPS) -o $@ $(CCFLAGS_all) $<
  
+# Build static library for rpi_gpio from the common folder.
+librpi_gpio.a:
+	$(MAKE) -C ../../common/rpi_gpio
+ 
+# Add library search path and libraries (adjust path as needed)
+LIBS = -L../../common/rpi_gpio/build/$(CONFIG_NAME) -lrpi_gpio -lm
+ 
 # Linking rule to create the final binary
-$(TARGET): $(OBJS)
-	$(LD) -o $(TARGET) $(OBJS)
+$(TARGET): $(OBJS) librpi_gpio.a
+	$(LD) -o $(TARGET) $(OBJS) $(LIBS)
  
 # Default rule
 all: $(TARGET)
@@ -58,5 +65,5 @@ clean:
 # Rebuild: clean then build
 rebuild: clean all
  
-# Include dependency files (if present)
+# Include auto-generated dependency files if present
 -include $(OBJS:.o=.d)
