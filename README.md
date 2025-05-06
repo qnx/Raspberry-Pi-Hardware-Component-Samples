@@ -2,7 +2,7 @@
 
 ## Introduction
 
-TBD
+This repo contains a collection of Python and C samples to demonstrate using various hardware GPIO sensors with Raspberry Pi on QNX 8.0. Please feel free to contribute new samples or to tweak existing samples!
 
 ## Scope
 
@@ -12,7 +12,7 @@ Any modifications to the standard configuration required for any sample code to 
 
 ## Content
 
-### common
+### /common
 
 This section of the repository contains useful system headers as well as client APIs that will be helpful to interact with hardware components.
 
