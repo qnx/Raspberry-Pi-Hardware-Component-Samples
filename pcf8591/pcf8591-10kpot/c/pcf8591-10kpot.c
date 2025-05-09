@@ -65,8 +65,7 @@ int main(int argc, char **argv)
         if (prev_value != value)
         {
             printf("New 10K POT value: %d\n", value);
-
-	    prev_value = value;
+            prev_value = value;
         }
 
         nanosleep(&wait_interval_time_spec, NULL);
