@@ -1,6 +1,6 @@
 # 4-Wire RGB LED Sample
 
-This demo shows how to change between multiple colours on an RGB LED on a Raspberry Pi using QNX.
+This sample shows how to change between multiple colours on an RGB LED on a Raspberry Pi using QNX.
 
 ## Pin Configuration
 
