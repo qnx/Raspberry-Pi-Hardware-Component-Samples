@@ -15,8 +15,8 @@
  */
 
 
- #ifndef RPI_SPI_API_H
- #define RPI_SPI_API_H
+#ifndef RPI_SPI_API_H
+#define RPI_SPI_API_H
  
 #include <hw/io-spi.h>
 
@@ -91,14 +91,18 @@ int rpi_spi_configure_device(unsigned bus_number, unsigned device_number, unsign
  *
  * @param    bus_number          SPI bus number
  * @param    device_number       SPI device number
- * @param    data_buffer         pointer to buffer of data to write
- * @param    data_size           data buffer size
+ * @param    write_data_buffer   pointer to buffer of data to write
+ * @param    read_data_buffer    pointer to buffer to copy read data to (if required)
+ * @param    data_size           data buffer size (same size for both read and write)
  *
  * @returns  SPI_SUCCESS                on success,
  *           SPI_ERROR_NOT_CONNECTED    if the SPI device is not available to connect to
  *           SPI_ERROR_OPERATION_FAILED SPI operation failed
  */
-int rpi_spi_write_read_data(unsigned bus_number, unsigned device_number, uint8_t *data_buffer, uint32_t data_size);
+int rpi_spi_write_read_data(unsigned bus_number, unsigned device_number,
+                            uint8_t *write_data_buffer,
+                            uint8_t *read_data_buffer,
+                            uint32_t data_size);
 
 /**
  * Cleanup from using the SPI device

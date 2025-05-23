@@ -1,4 +1,20 @@
-#include <stdio.h>
+/*
+ * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+ #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
 #include "rpi_spi.h"
@@ -19,7 +35,7 @@
 // Sends a register/value pair to the MAX7219
 int max7219_send(uint8_t reg, uint8_t val) {
     uint8_t buffer[2] = {reg, val};
-    if (rpi_spi_write_read_data(BUS, DEVICE, buffer, 2) != SPI_SUCCESS) {
+    if (rpi_spi_write_read_data(BUS, DEVICE, buffer, NULL, 2) != SPI_SUCCESS) {
         fprintf(stderr, "Failed to send SPI data\n");
         return 0;
     }
