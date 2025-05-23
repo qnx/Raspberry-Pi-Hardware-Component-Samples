@@ -185,7 +185,7 @@ static ws2811_return_t spi_transfer(ws2811_t *ws2811, int chan)
         if (ws2811->device->spi_bus_number[chan] != -1)
         {
             if (rpi_spi_write_read_data(ws2811->device->spi_bus_number[chan], ws2811->device->spi_device_number[chan],
-                                        ws2811->device->pxl_raw, SPI_BYTE_COUNT(ws2811->device->max_count)))
+                                        ws2811->device->pxl_raw, NULL, SPI_BYTE_COUNT(ws2811->device->max_count)))
             {
                 return WS2811_ERROR_SPI_TRANSFER;
             }

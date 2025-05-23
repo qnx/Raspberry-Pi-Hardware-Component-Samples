@@ -165,7 +165,10 @@ int rpi_spi_configure_device(unsigned bus_number, unsigned device_number, unsign
     return SPI_SUCCESS;
 }
 
-int rpi_spi_write_read_data(unsigned bus_number, unsigned device_number, uint8_t *data_buffer, uint32_t data_size)
+int rpi_spi_write_read_data(unsigned bus_number, unsigned device_number,
+                            uint8_t *write_data_buffer,
+                            uint8_t *read_data_buffer,
+                            uint32_t data_size)
 {
     int err;
 
@@ -181,6 +184,12 @@ int rpi_spi_write_read_data(unsigned bus_number, unsigned device_number, uint8_t
         return SPI_ERROR_BAD_ARGUMENT;
     }
 
+    if (write_data_buffer == NULL)
+    {
+        perror("invalid write data buffer pointer");
+        return SPI_ERROR_BAD_ARGUMENT;
+    }
+
     // Allocate memory for the message
     spi_xchng_t *spi_xchng_msg = NULL;
     spi_xchng_msg = malloc(sizeof(spi_xchng_t) + data_size); // allocate enough memory for the data
@@ -190,11 +199,11 @@ int rpi_spi_write_read_data(unsigned bus_number, unsigned device_number, uint8_t
         return -1;
     }
 
-    // Add the data
+    // Add the data to write
     spi_xchng_msg->nbytes = data_size;
     for (int i = 0; i < data_size; i++)
     {
-        spi_xchng_msg->data[i] = data_buffer[i];
+        spi_xchng_msg->data[i] = write_data_buffer[i];
     }
 
     // Send the SPI message
@@ -205,6 +214,15 @@ int rpi_spi_write_read_data(unsigned bus_number, unsigned device_number, uint8_t
         fprintf(stderr, "error: %d\n", err);
         perror("devctl");
         return SPI_ERROR_OPERATION_FAILED;
+    }
+
+    // Copy the read data (if a buffer is provided)
+    if (read_data_buffer != NULL)
+    {
+        for (int i = 0; i < data_size; i++)
+        {
+            read_data_buffer[i] = spi_xchng_msg->data[i];
+        }
     }
 
     // Free allocated message
