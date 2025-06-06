@@ -21,11 +21,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "public/rpi_i2c.h"
+#include <string.h>
 
 #define I2C_FILENAME_FORMAT "/dev/i2c%d"
 #define MAX_I2C_BUSES       10 // TODO: Is this correct?
 #define MIN_READ_BYTES      1
-#define MIN_WRITE_BYTES     2
+
+#define MIN_WRITE_BYTES     2 // register (1) + data (1)
+#define MIN_RAW_WRITE_BYTES 1  // only data, no register
 
 static int smbus_fd[MAX_I2C_BUSES] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
@@ -115,7 +118,7 @@ int smbus_read_byte_data(unsigned bus_number, uint8_t i2c_address, uint8_t regis
     if (err != EOK)
     {
         free(msg);
-        perror("devctl");
+        fprintf(stderr, "error with devctl: %s\n", strerror(err));
         return I2C_ERROR_OPERATION_FAILED;
     }
 
@@ -167,15 +170,12 @@ int smbus_read_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t regi
     if (err != EOK)
     {
         free(msg);
-        perror("devctl");
+        fprintf(stderr, "error with devctl: %s\n", strerror(err));
         return I2C_ERROR_OPERATION_FAILED;
     }
 
     // Save the read data
-    for (int i = 0; i < block_size; i++)
-    {
-        block_buffer[i] = msg->bytes[i];
-    }
+    memcpy(block_buffer, msg->bytes, block_size);
 
     // Free allocated message
     free(msg);
@@ -217,7 +217,7 @@ int smbus_write_byte_data(unsigned bus_number, uint8_t i2c_address, uint8_t regi
     if (err != EOK)
     {
         free(msg);
-        perror("error with devctl");
+        fprintf(stderr, "error with devctl: %s\n", strerror(err));
         return I2C_ERROR_OPERATION_FAILED;
     }
 
@@ -227,7 +227,7 @@ int smbus_write_byte_data(unsigned bus_number, uint8_t i2c_address, uint8_t regi
     return I2C_SUCCESS;
 }
 
-int smbus_write_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t register_val, uint8_t *block_buffer, uint8_t block_size)
+int smbus_write_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t register_val, const uint8_t *block_buffer, uint8_t block_size)
 {
     int err;
 
@@ -253,10 +253,7 @@ int smbus_write_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t reg
     // Assign which register gets what value
     msg->bytes[0] = register_val;
     // Add the write data
-    for (int i = 0; i < block_size; i++)
-    {
-        msg->bytes[1 + i] = block_buffer[i];
-    }
+    memcpy(&msg->bytes[1], block_buffer, block_size);
 
     // Assign the I2C device and format of message
     msg->hdr.slave.addr = i2c_address;
@@ -270,7 +267,7 @@ int smbus_write_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t reg
     if (err != EOK)
     {
         free(msg);
-        perror("error with devctl");
+        fprintf(stderr, "error with devctl: %s\n", strerror(err));
         return I2C_ERROR_OPERATION_FAILED;
     }
 
@@ -290,6 +287,193 @@ int smbus_cleanup(unsigned bus_number)
         perror("close_smbus_fd");
         status = I2C_ERROR_CLEANING_UP;
     }
+
+    return I2C_SUCCESS;
+}
+
+
+int smbus_read_byte(unsigned bus_number, uint8_t i2c_address, uint8_t *value)
+{
+    // error variable
+    int err;
+
+    if (open_smbus_fd(bus_number))
+    {
+        perror("open_smbus_fd");
+        return I2C_ERROR_NOT_CONNECTED;
+    }
+
+    // Allocate memory for the message
+    struct i2c_recv_data_msg_t *msg = NULL;
+    msg = malloc(sizeof(struct i2c_recv_data_msg_t) + MIN_READ_BYTES); // allocate enough memory for both the calling information and received data
+    if (!msg)
+    {
+        perror("alloc failed");
+        return I2C_ERROR_ALLOC_FAILED;
+    }
+
+    // Assign the I2C device and format of message
+    msg->hdr.slave.addr = i2c_address;
+    msg->hdr.slave.fmt = I2C_ADDRFMT_7BIT;
+    msg->hdr.send_len = 0; // no register to send
+    msg->hdr.recv_len = 1; // read 1 byte
+    msg->hdr.stop = 1;
+
+    // Send the I2C message
+    int status; // status information about the devctl() call
+    err = devctl(smbus_fd[bus_number], DCMD_I2C_SENDRECV, msg, sizeof(*msg) + 1, (&status));
+    if (err != EOK)
+    {
+        free(msg);
+        fprintf(stderr, "error with devctl: %s\n", strerror(err));
+        return I2C_ERROR_OPERATION_FAILED;
+    }
+
+    // return the read data
+    *value = msg->bytes[0];
+
+    // Free allocated message
+    free(msg);
+
+    return I2C_SUCCESS;
+}
+
+int smbus_read_block(unsigned bus_number, uint8_t i2c_address, uint8_t *block_buffer, uint8_t block_size)
+{
+    int err;
+
+    if (open_smbus_fd(bus_number))
+    {
+        perror("open_smbus_fd");
+        return I2C_ERROR_NOT_CONNECTED;
+    }
+
+    if (block_size < MIN_READ_BYTES) {
+        block_size = MIN_READ_BYTES;
+    }
+
+    // Allocate memory for the message
+    struct i2c_recv_data_msg_t *msg = NULL;
+    msg = malloc(sizeof(struct i2c_recv_data_msg_t) + block_size); // allocate enough memory for both the calling information and received data
+    if (!msg)
+    {
+        perror("alloc failed");
+        return I2C_ERROR_ALLOC_FAILED;
+    }
+
+    // Assign the I2C device and format of message
+    msg->hdr.slave.addr = i2c_address;
+    msg->hdr.slave.fmt = I2C_ADDRFMT_7BIT;
+    msg->hdr.send_len = 0;
+    msg->hdr.recv_len = block_size;
+    msg->hdr.stop = 1;
+
+    // Send the I2C message
+    int status; // status information about the devctl() call
+    err = devctl(smbus_fd[bus_number], DCMD_I2C_SENDRECV, msg, sizeof(struct i2c_recv_data_msg_t) + block_size, (&status));
+    if (err != EOK)
+    {
+        free(msg);
+        fprintf(stderr, "error with devctl: %s\n", strerror(err));
+        return I2C_ERROR_OPERATION_FAILED;
+    }
+
+    // Save the read data
+    memcpy(block_buffer, msg->bytes, block_size);
+
+    // Free allocated message
+    free(msg);
+
+    return I2C_SUCCESS;
+}
+
+int smbus_write_byte(unsigned bus_number, uint8_t i2c_address, const uint8_t value)
+{
+    int err;
+
+    if (open_smbus_fd(bus_number))
+    {
+        perror("open_smbus_fd");
+        return I2C_ERROR_NOT_CONNECTED;
+    }
+
+    // Allocate memory for the message
+    struct i2c_send_data_msg_t *msg = NULL;
+    msg = malloc(sizeof(struct i2c_send_data_msg_t) + MIN_RAW_WRITE_BYTES); // allocate enough memory for both the calling information and received data
+    if (!msg)
+    {
+        perror("alloc failed");
+        return I2C_ERROR_ALLOC_FAILED;
+    }
+
+    // Assign which register gets what value
+    msg->bytes[0] = value;
+
+    // Assign the I2C device and format of message
+    msg->hdr.slave.addr = i2c_address;
+    msg->hdr.slave.fmt = I2C_ADDRFMT_7BIT;
+    msg->hdr.len = MIN_RAW_WRITE_BYTES;
+    msg->hdr.stop = 1;
+
+    // Send the I2C message
+    err = devctl(smbus_fd[bus_number], DCMD_I2C_SEND, msg, sizeof(struct i2c_send_data_msg_t) + MIN_RAW_WRITE_BYTES, NULL);
+    if (err != EOK)
+    {
+        free(msg);
+        fprintf(stderr, "error with devctl: %s\n", strerror(err));
+        return I2C_ERROR_OPERATION_FAILED;
+    }
+
+    // Free allocated memory
+    free(msg);
+
+    return I2C_SUCCESS;
+}
+
+int smbus_write_block(unsigned bus_number, uint8_t i2c_address, const uint8_t *block_buffer, uint8_t block_size)
+{
+    int err;
+
+    if (open_smbus_fd(bus_number))
+    {
+        perror("open_smbus_fd");
+        return I2C_ERROR_NOT_CONNECTED;
+    }
+
+    if (block_size < MIN_RAW_WRITE_BYTES) {
+        block_size = MIN_RAW_WRITE_BYTES;
+    }
+
+    // Allocate memory for the message
+    struct i2c_send_data_msg_t *msg = NULL;
+    msg = malloc(sizeof(struct i2c_send_data_msg_t) + block_size); // allocate enough memory for both the calling information and received data
+    if (!msg)
+    {
+        perror("alloc failed");
+        return I2C_ERROR_ALLOC_FAILED;
+    }
+
+    // Add the write data
+    memcpy(msg->bytes, block_buffer, block_size);
+
+    // Assign the I2C device and format of message
+    msg->hdr.slave.addr = i2c_address;
+    msg->hdr.slave.fmt = I2C_ADDRFMT_7BIT;
+    msg->hdr.len = block_size;
+    msg->hdr.stop = 1;
+
+    // Send the I2C message
+    int status; // status information about the devctl() call
+    err = devctl(smbus_fd[bus_number], DCMD_I2C_SEND, msg, sizeof(struct i2c_send_data_msg_t) + block_size, (&status));
+    if (err != EOK)
+    {
+        free(msg);
+        fprintf(stderr, "error with devctl: %s\n", strerror(err));
+        return I2C_ERROR_OPERATION_FAILED;
+    }
+
+    // Free allocated message
+    free(msg);
 
     return I2C_SUCCESS;
 }

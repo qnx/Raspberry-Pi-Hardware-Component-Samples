@@ -22,9 +22,21 @@ This section of the repository contains useful system headers as well as client 
 
 Get a free, non-commercial QNX Software Development Platform 8.0 license at [https://www.qnx.com/getqnx](https://www.qnx.com/getqnx).
 
-## How to obtain the RaspBerry PI 4 Quickstart Image
+## Related Repositories
 
-[Quickstart instructions](https://gitlab.com/qnx/quick-start-images/raspberry-pi-qnx-8.0-quick-start-image#quickstart-instructions)
+These sample projects are designed to be used alongside the following repositories:
+
+### QNX 8.0 Quick Start Image (QSTI)
+Provides a ready-to-use QNX image for Raspberry Pi.
+
+https://gitlab.com/qnx/quick-start-images/raspberry-pi-qnx-8.0-quick-start-image
+
+### Custom Target Image (CTI) Build for Raspberry Pi 4
+A customizable build system for creating your own QNX 8.0 image.
+
+https://gitlab.com/qnx/custom-target-image-builds/raspberry-pi-4-qnx-8.0
+
+These repositories complement the sample code here and help you get up and running on real hardware.
 
 ## Contributor Guidelines
 
