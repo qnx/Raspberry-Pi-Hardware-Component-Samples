@@ -100,7 +100,7 @@ int smbus_write_byte_data(unsigned bus_number, uint8_t i2c_address, uint8_t regi
  *           I2C_ERROR_ALLOC_FAILED      device control packet allocation failed
  *           I2C_ERROR_OPERATION_FAILED  I2C operation failed
  */
-int smbus_write_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t register_val, uint8_t *block_buffer, uint8_t block_size);
+int smbus_write_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t register_val, const uint8_t *block_buffer, uint8_t block_size);
 
 /**
  * Clean up I2C API resources
@@ -112,5 +112,65 @@ int smbus_write_block_data(unsigned bus_number, uint8_t i2c_address, uint8_t reg
  *           I2C_ERROR_CLEANING_UP       if there is a failure disconnecting from the resource manager
  */
 int smbus_cleanup(unsigned bus_number);
+
+
+
+/**
+ * Reads one byte directly from an I2C device that does not use register addressing.
+ *
+ * @param    bus_number      I2C bus number
+ * @param    i2c_address     I2C address
+ * @param    value           value of register byte read (output)
+ *
+ * @returns  I2C_SUCCESS                 on success,
+ *           I2C_ERROR_NOT_CONNECTED     if the i2C device is not available to connect to
+ *           I2C_ERROR_ALLOC_FAILED      device control packet allocation failed
+ *           I2C_ERROR_OPERATION_FAILED  I2C operation failed
+ */
+int smbus_read_byte(unsigned bus_number, uint8_t i2c_address, uint8_t *value);
+
+/**
+ * Reads a block of bytes directly from an I2C device that does not use register addressing.
+ *
+ * @param    bus_number      I2C bus number
+ * @param    i2c_address     I2C address
+ * @param    block_buffer    pointer to buffer to store read data
+ * @param    block_size      size of buffer
+ *
+ * @returns  I2C_SUCCESS                 on success,
+ *           I2C_ERROR_NOT_CONNECTED     if the i2C device is not available to connect to
+ *           I2C_ERROR_ALLOC_FAILED      device control packet allocation failed
+ *           I2C_ERROR_OPERATION_FAILED  I2C operation failed
+ */
+int smbus_read_block(unsigned bus_number, uint8_t i2c_address, uint8_t *block_buffer, uint8_t block_size);
+
+/**
+ * Write any uint8_t value to an I2C device that does not use register addressing.
+ *
+ * @param    bus_number      I2C bus number
+ * @param    i2c_address     I2C address
+ * @param    value           value of register byte to write
+ *
+ * @returns  I2C_SUCCESS                 on success,
+ *           I2C_ERROR_NOT_CONNECTED     if the i2C device is not available to connect to
+ *           I2C_ERROR_ALLOC_FAILED      device control packet allocation failed
+ *           I2C_ERROR_OPERATION_FAILED  I2C operation failed
+ */
+int smbus_write_byte(unsigned bus_number, uint8_t i2c_address, const uint8_t value);
+
+/**
+ * Write a block of bytes to an I2C device that does not use register addressing.
+ *
+ * @param    bus_number      I2C bus number
+ * @param    i2c_address     I2C address
+ * @param    block_buffer    pointer to buffer for data to write
+ * @param    block_size      size of buffer
+ *
+ * @returns  I2C_SUCCESS                 on success,
+ *           I2C_ERROR_NOT_CONNECTED     if the i2C device is not available to connect to
+ *           I2C_ERROR_ALLOC_FAILED      device control packet allocation failed
+ *           I2C_ERROR_OPERATION_FAILED  I2C operation failed
+ */
+int smbus_write_block(unsigned bus_number, uint8_t i2c_address, const uint8_t *block_buffer, uint8_t block_size);
 
 #endif

@@ -31,7 +31,7 @@ the different commands documented here:
 
 https://www.qnx.com/developers/docs/8.0/com.qnx.doc.neutrino.spi_framework/topic/spi_ch_overview.html#SPI_POSIX
 
-Note that currently any app using this API needs to be executed as root to access the SPI device driver.
+Quick Start Target Imagers prior to Build 180 require using root to run apps that use SPI.
 
 [rpi_spi](rpi_spi)
 
