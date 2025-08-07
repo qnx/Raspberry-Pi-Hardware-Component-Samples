@@ -87,6 +87,13 @@
 // --- BNO055 Operation Modes ---
 #define BNO055_OPERATION_MODE_CONFIG (0x00) ///< Configuration mode (for setup)
 #define BNO055_OPERATION_MODE_NDOF   (0x0C) ///< 9-DOF absolute orientation fusion mode
+
+// --- Data Scaling Divisors (LSB to physical units) ---
+#define BNO055_ACCEL_DIVISOR    100.0  // 1m/s² = 100 LSB
+#define BNO055_MAG_DIVISOR      16.0   // 1uT = 16 LSB
+#define BNO055_GYRO_DIVISOR     16.0   // 1dps = 16 LSB
+#define BNO055_EULER_DIVISOR    16.0   // 1° = 16 LSB
+#define BNO055_QUAT_SCALE       (1.0 / (1 << 14)) // Scale for quaternion values
  
 /* --------------------------------------------------------------------------
  * Data Structures
@@ -129,13 +136,13 @@ void read_all_sensor_data() {
     bno055_vector_t euler, accel, mag, gyro, lia, grv;
     bno055_quaternion_t quat;
  
-    // Read all sensor vectors and the quaternion
-    bno055_read_vector(BNO055_EUL_HEADING_LSB_ADDR, &euler, 16.0);
-    bno055_read_vector(BNO055_ACC_DATA_X_LSB_ADDR, &accel, 100.0);
-    bno055_read_vector(BNO055_MAG_DATA_X_LSB_ADDR, &mag, 16.0);
-    bno055_read_vector(BNO055_GYR_DATA_X_LSB_ADDR, &gyro, 16.0);
-    bno055_read_vector(BNO055_LIA_DATA_X_LSB_ADDR, &lia, 100.0);
-    bno055_read_vector(BNO055_GRV_DATA_X_LSB_ADDR, &grv, 100.0);
+    // Read all sensor vectors using the defined constants
+    bno055_read_vector(BNO055_EUL_HEADING_LSB_ADDR, &euler, BNO055_EULER_DIVISOR);
+    bno055_read_vector(BNO055_ACC_DATA_X_LSB_ADDR, &accel, BNO055_ACCEL_DIVISOR);
+    bno055_read_vector(BNO055_MAG_DATA_X_LSB_ADDR, &mag, BNO055_MAG_DIVISOR);
+    bno055_read_vector(BNO055_GYR_DATA_X_LSB_ADDR, &gyro, BNO055_GYRO_DIVISOR);
+    bno055_read_vector(BNO055_LIA_DATA_X_LSB_ADDR, &lia, BNO055_ACCEL_DIVISOR); // Linear Accel shares divisor with Accel
+    bno055_read_vector(BNO055_GRV_DATA_X_LSB_ADDR, &grv, BNO055_ACCEL_DIVISOR); // Gravity shares divisor with Accel
     bno055_read_quaternion(&quat);
  
     printf("--------------------------------------------------\n");

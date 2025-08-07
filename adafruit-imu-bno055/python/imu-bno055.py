@@ -68,6 +68,13 @@ BNO055_GRV_DATA_X_LSB_ADDR  = 0x2E
 # BNO055 Operation Modes
 BNO055_OPERATION_MODE_CONFIG = 0x00
 BNO055_OPERATION_MODE_NDOF   = 0x0C
+
+# Data Scaling Divisors (LSB to physical units)
+BNO055_ACCEL_DIVISOR    = 100.0
+BNO055_MAG_DIVISOR      = 16.0
+BNO055_GYRO_DIVISOR     = 16.0
+BNO055_EULER_DIVISOR    = 16.0
+BNO055_QUAT_SCALE       = 1.0 / (1 << 14)
  
 ## --------------------------------------------------------------------------
 ## Create SMBus Object
@@ -161,12 +168,12 @@ def bno055_read_and_print_all_data():
     """
     @brief Reads all available sensor data and prints it to the console.
     """
-    euler = bno055_read_vector(BNO055_EUL_HEADING_LSB_ADDR, 16.0)
-    accel = bno055_read_vector(BNO055_ACC_DATA_X_LSB_ADDR, 100.0)
-    mag = bno055_read_vector(BNO055_MAG_DATA_X_LSB_ADDR, 16.0)
-    gyro = bno055_read_vector(BNO055_GYR_DATA_X_LSB_ADDR, 16.0)
-    lia = bno055_read_vector(BNO055_LIA_DATA_X_LSB_ADDR, 100.0)
-    grv = bno055_read_vector(BNO055_GRV_DATA_X_LSB_ADDR, 100.0)
+    euler = bno055_read_vector(BNO055_EUL_HEADING_LSB_ADDR, BNO055_EULER_DIVISOR)
+    accel = bno055_read_vector(BNO055_ACC_DATA_X_LSB_ADDR, BNO055_ACCEL_DIVISOR)
+    mag = bno055_read_vector(BNO055_MAG_DATA_X_LSB_ADDR, BNO055_MAG_DIVISOR)
+    gyro = bno055_read_vector(BNO055_GYR_DATA_X_LSB_ADDR, BNO055_GYRO_DIVISOR)
+    lia = bno055_read_vector(BNO055_LIA_DATA_X_LSB_ADDR, BNO055_ACCEL_DIVISOR)
+    grv = bno055_read_vector(BNO055_GRV_DATA_X_LSB_ADDR, BNO055_ACCEL_DIVISOR)
     quat = bno055_read_quaternion()
  
     print("--------------------------------------------------")
