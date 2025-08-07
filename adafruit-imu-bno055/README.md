@@ -66,7 +66,7 @@ The default I²C address used in the code is **`0x28`**.
  
 ## Software Requirements
  
-* **Operating System:** QNX SDP 8.0 RTOS.
+* **Operating System:** QNX SDP 8.0.
 * **Compiler:** `qcc` compiler for `aarch64le` architecture.
 * **Libraries:** The custom `rpi_i2c` library.
 * **Privileges:** The application requires **root** privileges to access the low-level I²C hardware bus.
@@ -113,7 +113,7 @@ The default I²C address used in the code is **`0x28`**.
 2. Transfer the python file `imu-bno055.py` to the target.
  
  
-2.  **Run the Script**
+3.  **Run the Script**
     The script must be run with root privileges to access the I²C hardware bus. It can be run in two modes:
  
     * **Normal Mode (Loads Existing Calibration):**
