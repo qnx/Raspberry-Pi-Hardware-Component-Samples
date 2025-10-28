@@ -1,6 +1,8 @@
 # HC-SR04 Ultrasonic Sensor for QNX
  
 This repository contains sample code (in both C and Python) for interfacing with the HC-SR04 ultrasonic sensor on QNX. Originally written for the Trilobot platform, this code can also be changed for use on a breadboard or other hardware setups.
+
+NOTE: The C implementation talks directly to the GPIO HW of the RPI4 and thus only supports that target.
  
 > **Important:**  
 > Both implementations require root privileges to access the GPIO pins. The code uses QNX’s `rpi_gpio` API.
