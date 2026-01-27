@@ -22,6 +22,7 @@
 #include "public/rpi_spi.h"
 
 #define SPI_DEVICE_FILENAME_FORMAT "/dev/io-spi/spi%d/dev%d"
+#define SPI_DEVICE_FILENAME_LENGTH 40 // 19 (format) + 1 (nul) + 2 * 10 (max digits for unsigned int)
 
 #define MAX_SPI_BUSES 6
 #define MAX_SPI_BUS_DEVICES 10 // should be good enough to start with
@@ -41,9 +42,9 @@ static pthread_mutex_t spi_fd_mutex;
 static int
 open_spi_device_fd(unsigned bus_number, unsigned device_number)
 {
-    char spi_device_name[20] = {0};
+    char spi_device_name[SPI_DEVICE_FILENAME_LENGTH] = {0};
 
-    sprintf(spi_device_name, SPI_DEVICE_FILENAME_FORMAT, bus_number, device_number);
+    snprintf(spi_device_name, sizeof(spi_device_name), SPI_DEVICE_FILENAME_FORMAT, bus_number, device_number);
 
     pthread_mutex_lock(&spi_fd_mutex);
 
