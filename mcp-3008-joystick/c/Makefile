@@ -17,7 +17,7 @@
 include ../../common/config.mk
 
 ARTIFACT_TYPE = exe
-ARTIFACT = mcp-8008-joystick
+ARTIFACT = mcp-3008-joystick
 
 #Build architecture/variant string, possible values: x86, armv7le, etc...
 PLATFORM ?= aarch64le
