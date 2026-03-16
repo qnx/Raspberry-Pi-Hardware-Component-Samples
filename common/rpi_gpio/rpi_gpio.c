@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2024-2026, BlackBerry Limited. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/neutrino.h>
+#include <sys/rpi_gpio.h>
 #include "public/rpi_gpio.h"
 
 // File descriptor to communicate with resource manager
@@ -393,7 +394,6 @@ int rpi_gpio_add_event_detect(int gpio_pin, int coid, unsigned event, unsigned e
     {
         event_msg.detect |= RPI_EVENT_LEVEL_LOW;
     }
-    printf("event_msg.detect: %d\n", event_msg.detect);
 
     if (event_msg.detect == 0)
     {

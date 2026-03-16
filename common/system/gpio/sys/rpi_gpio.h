@@ -25,11 +25,11 @@
 
 #include <sys/iomsg.h>
 #include <sys/iomgr.h>
-#include <aarch64/rpi_gpio.h>
 
 #define RPI_GPIO_IOMGR  (_IOMGR_PRIVATE_BASE + 35)
 
-#define RPI_GPIO_NUM    54
+#define RPI_GPIO_NUM  28
+
 
 /**
  * _IO_MSG subtypes used as commands passed to the 'msg' node.
@@ -52,10 +52,6 @@ enum
     RPI_GPIO_PWM_DUTY,
     /** Set pull-up/pull-down */
     RPI_GPIO_PUD,
-    /** Initialize the SPI module. */
-    RPI_GPIO_SPI_INIT,
-    /** Write/read data to/from the SPI interface. */
-    RPI_GPIO_SPI_WRITE_READ,
 };
 
 /**
@@ -77,6 +73,36 @@ enum
 {
     RPI_PWM_MODE_PWM = 0,
     RPI_PWM_MODE_MS = 1
+};
+
+/**
+ * Pin function.
+ */
+enum
+{
+    RPI_GPIO_FUNC_IN = 0,
+    RPI_GPIO_FUNC_OUT = 1,
+    RPI_GPIO_FUNC_ALT_0 = 4,
+    RPI_GPIO_FUNC_ALT_1 = 5,
+    RPI_GPIO_FUNC_ALT_2 = 6,
+    RPI_GPIO_FUNC_ALT_3 = 7,
+    RPI_GPIO_FUNC_ALT_4 = 3,
+    RPI_GPIO_FUNC_ALT_5 = 2,
+    /* RPI5 */
+    RPI_GPIO_FUNC_ALT_6 = 8,
+    RPI_GPIO_FUNC_ALT_7 = 9,
+    RPI_GPIO_FUNC_ALT_8 = 10,
+    RPI_GPIO_FUNC_NULL = 0x1f
+};
+
+/**
+ * Pull up/down values.
+ */
+enum
+{
+    RPI_GPIO_PUD_OFF = 0,
+    RPI_GPIO_PUD_DOWN = 1,
+    RPI_GPIO_PUD_UP = 2
 };
 
 /**
@@ -118,19 +144,5 @@ typedef struct
     unsigned        range;
     unsigned        mode;
 } rpi_gpio_pwm_t;
-
-/**
- * Message structure for SPI messages.
- */
-typedef struct
-{
-    struct _io_msg  hdr;
-    unsigned        zero;
-    union {
-        uint32_t    cs;
-        uint32_t    clkdiv;
-    };
-    uint8_t         data[];
-} rpi_gpio_spi_t;
 
 #endif

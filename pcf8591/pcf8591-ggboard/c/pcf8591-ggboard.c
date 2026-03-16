@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2025-2026, BlackBerry Limited. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,13 @@
 #define PCF8591_AIN_ALL 0x44 // all inputs with auto increment flag
 #define PCF8591_AOU0 0x40
 
-
 bool running = true;
 
 // handlers for intercepting Ctrl-C to stop application
 static void ctrl_c_handler(int signum)
 {
     (void)(signum);
-    running = 0;
+    running = false;
 }
 
 static void setup_handlers(void)
@@ -56,6 +55,7 @@ static void setup_handlers(void)
 int main(int argc, char **argv)
 {
     setup_handlers();
+
     struct timespec wait_interval_time_spec = {.tv_nsec = 10000000};
     uint8_t value = 0;
     uint8_t values[4] = {0};

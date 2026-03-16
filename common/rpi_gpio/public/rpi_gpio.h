@@ -18,8 +18,6 @@
 #ifndef RPI_GPIO_API_H
 #define RPI_GPIO_API_H
 
-#include <sys/rpi_gpio.h>
-
 /* Return codes for client API */
 #define GPIO_SUCCESS 0
 #define GPIO_ERROR_NOT_CONNECTED -1
@@ -194,7 +192,7 @@ int rpi_gpio_input(int gpio_pin, unsigned *level);
  *
  * @param    gpio_pin  GPIO pin
  * @param    coid      communication ID
- * @param    event     GPIO even of interest
+ * @param    event     GPIO event of interest
  *                     (combination of flags from @ref gpio_level_change_t and  @ref gpio_level_t) 
  * @param    event_id  event ID for notification
  *

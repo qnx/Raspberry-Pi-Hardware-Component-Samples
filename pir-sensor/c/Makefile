@@ -17,7 +17,7 @@
 include ../../common/config.mk
 
 ARTIFACT_TYPE = exe
-ARTIFACT = temp-humidity-sht3x
+ARTIFACT = pir-sensor
 
 #Build architecture/variant string, possible values: x86, armv7le, etc...
 PLATFORM ?= aarch64le
@@ -29,11 +29,15 @@ CONFIG_NAME ?= $(PLATFORM)-$(BUILD_PROFILE)
 OUTPUT_DIR = build/$(CONFIG_NAME)
 TARGET = $(OUTPUT_DIR)/$(ARTIFACT)
 
-# Include paths (adjusted: use the folder where rpi_i2c.h is now located)
-INCLUDES = -I../../common/rpi_i2c/public/
+#User defined include/preprocessor flags and libraries
+INCLUDES += -I../../common/system/gpio
+INCLUDES += -I../../common/rpi_gpio/public
 
-LIBS += -L../../common/rpi_i2c/build/aarch64le-debug
-LIBS += -lm -lrpi_i2c
+LIBS += -L../../common/rpi_gpio/build/aarch64le-debug
+LIBS += -lrpi_gpio -lm
+ifdef QNX_BUILD_SELF_HOSTED
+LIBS += -lc
+endif
 
 #Compiler flags for build profiles
 CCFLAGS_release += -O2
@@ -46,8 +50,7 @@ LIBS_profile += -lprofilingS
 #Generic compiler flags (which include build type flags)
 CCFLAGS_all += -Wall -fmessage-length=0
 CCFLAGS_all += $(CCFLAGS_$(BUILD_PROFILE))
-#Shared library has to be compiled with -fPIC
-#CCFLAGS_all += -fPIC
+CCFLAGS_all += -fPIC
 LDFLAGS_all += $(LDFLAGS_$(BUILD_PROFILE))
 LIBS_all += $(LIBS_$(BUILD_PROFILE))
 DEPS = -Wp,-MMD,$(@:%.o=%.d),-MT,$@
@@ -65,17 +68,18 @@ OBJS = $(addprefix $(OUTPUT_DIR)/,$(addsuffix .o, $(basename $(SRCS))))
 $(OUTPUT_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
-	
+
 #Linking rule
-$(TARGET):$(OBJS) librpi_i2c.a
+$(TARGET):$(OBJS) librpi_gpio.a
+	echo $(SRCS)
+	echo $(OBJS)
 	$(LD) $(LDFLAGS_$(ARTIFACT_TYPE)) $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
 
 #Rules section for default compilation and linking
 all: $(TARGET)
-	
-# Build static library for rpi_i2c from the common folder.
-librpi_i2c.a:
-	$(MAKE) -C ../../common/rpi_i2c	
+
+librpi_gpio.a:
+	$(MAKE) -C../../common/rpi_gpio
 
 clean:
 	rm -fr $(OUTPUT_DIR)

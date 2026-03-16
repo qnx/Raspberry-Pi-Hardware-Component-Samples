@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2025-2026, BlackBerry Limited. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+#include <stdbool.h>
 #include <stdio.h>    // Standard input/output functions (for puts and perror)
 #include <stdlib.h>   // Standard library (for EXIT_SUCCESS and EXIT_FAILURE)
 #include <time.h>
+#include <unistd.h>
 
 // The interface for a GPIO resource manager tailored for the Raspberry Pi's GPIO pins under QNX.
 // This file provides functions to configure GPIO pins, set pin modes, and read/write pin values.
@@ -81,7 +83,7 @@ int main(void) {
         }
 
         // Leave the LED off for .5 seconds
-        delay(500);
+        usleep(500000);
 
         // Turn the LED on
         if (!led_on(GPIO_PIN))
@@ -90,7 +92,7 @@ int main(void) {
         }
 
         // Leave the LED on for .5 seconds
-        delay(500);
+        usleep(500000);
     }
 
     // Exit successfully

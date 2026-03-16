@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2025-2026, BlackBerry Limited. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/iomsg.h>
 #include "rpi_gpio.h"
 
 // Define possible event types for the system
@@ -153,6 +155,7 @@ int main(int argc, char **argv)
     for (;;)
     {
         struct _pulse pulse;
+		struct timespec current_time;
         if (MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL) == -1)
         {
             perror("MsgReceivePulse()");
@@ -168,9 +171,7 @@ int main(int argc, char **argv)
         switch (pulse.value.sival_int)
         {
             case EVENT_BUTTON_1:
-
 				// Get the current time
-				struct timespec current_time;
 				clock_gettime(CLOCK_MONOTONIC, &current_time);
 
 				// We sometimes get duplicate events on button up

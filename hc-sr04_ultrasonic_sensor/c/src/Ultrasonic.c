@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+* Copyright (c) 2025-2026, BlackBerry Limited. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,8 +30,6 @@
 * The sensor is powered by 5V, and the built‑in resistor divider reduces the echo
 * signal voltage (approximately 2.5V when high). An internal pull‑DOWN is disabled
 * on GPIO 25 to allow the sensor’s divider to work properly.
-*
-* Run this code with root privileges.
 */
  
 #include <stdio.h>
@@ -40,14 +38,14 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/iomsg.h>
 #include <sys/mman.h>
 #include <sys/neutrino.h>
 #include "rpi_gpio.h"   // QNX inline functions for GPIO control
 
- 
 // GPIO pin definitions (using BCM numbering)
-#define GPIO_PULSE_PIN     13  ///< GPIO pin for the trigger signal (US_TRIG)
-#define GPIO_INTERRUPT_PIN 25  ///< GPIO pin for the echo signal (US_ECHO)
+#define GPIO_PULSE_PIN 13  ///< GPIO pin for the trigger signal (US_TRIG)
+#define GPIO_ECHO_PIN  25  ///< GPIO pin for the echo signal (US_ECHO)
  
 // Speed of sound in cm per microsecond.
 #define SPEED_OF_SOUND_CM_PER_US 0.0343
@@ -57,9 +55,44 @@
  
 // Peripheral base address (mapping adds 0x200000 so registers map to 0xFE200000)
 #define RPI_PERIPHERAL_BASE 0xfe000000
- 
-/// Global pointer required by the inline functions for accessing GPIO registers.
-volatile uint32_t *__RPI_GPIO_REGS = NULL;
+
+// Define possible event types for the system
+enum sample_event_t
+{
+    EVENT_ECHO, // Event triggered by button press
+}; 
+
+static int chid;  // Channel ID
+static int coid;  // Connection ID
+
+// Track the time of the last valid button press
+static struct timespec last_trigger_event_time;
+
+// Initializes the communication channel for event handling.
+// This function creates a private message-passing channel (chid) for inter-process communication (IPC).
+// The channel is used to receive pulse events from GPIO interrupts.
+// A connection (coid) is then attached to this channel, allowing the process to send and receive events.
+// If either step fails, the function returns false to indicate an initialization error.
+static bool init_channel(void)
+{
+    // Create a private communication channel
+    chid = ChannelCreate(_NTO_CHF_PRIVATE);
+    if (chid == -1)
+    {
+        perror("ChannelCreate");
+        return false;
+    }
+
+    // Attach a connection to the created channel
+    coid = ConnectAttach(0, 0, chid, _NTO_SIDE_CHANNEL, 0);
+    if (coid == -1)
+    {
+        perror("ConnectAttach");
+        return false;
+    }
+
+    return true;
+}
  
 /**
 * @brief Calculates the elapsed time in microseconds between two time points.
@@ -75,57 +108,31 @@ static float calculate_elapsed_time_us(const struct timespec *start, const struc
 }
  
 /**
-* @brief Waits for a specified GPIO pin to reach the desired state.
-*
-* This function polls the given GPIO pin until it reaches the desired state
-* (HIGH if desired_state is true, LOW if false) or until the timeout expires.
-*
-* @param gpio_pin The GPIO pin number to monitor.
-* @param desired_state The state to wait for (true for HIGH, false for LOW).
-* @param timeout_ms Maximum time to wait in milliseconds.
-* @param timestamp Pointer to a timespec structure where the detection time will be stored.
-* @return int Returns 0 if the state is detected within the timeout, or -1 if a timeout occurs.
-*/
-static int wait_for_gpio_state(int gpio_pin, bool desired_state, double timeout_ms, struct timespec *timestamp)
-{
-    struct timespec start, current;
-    clock_gettime(CLOCK_REALTIME, &start);
- 
-    while (1)
-    {
-        bool current_state = (rpi_gpio_read(gpio_pin) != 0);
-        if (current_state == desired_state)
-        {
-            clock_gettime(CLOCK_REALTIME, timestamp);
-            return 0;
-        }
-        clock_gettime(CLOCK_REALTIME, &current);
-        double elapsed_ms = (current.tv_sec - start.tv_sec) * 1000.0 +
-                            (current.tv_nsec - start.tv_nsec) / 1e6;
-        if (elapsed_ms > timeout_ms)
-        {
-            return -1;
-        }
-    }
-}
- 
-/**
 * @brief Sends a 10-microsecond pulse on the ultrasonic trigger pin.
 *
 * This function sets the trigger GPIO pin HIGH for 10 µs and then clears it.
 *
 * @return int Returns 0 on success.
 */
-static int send_pulse(void)
+static bool send_pulse(void)
 {
     printf("Sending trigger pulse...\n");
-    rpi_gpio_set(GPIO_PULSE_PIN);
+    if (rpi_gpio_output(GPIO_PULSE_PIN, GPIO_HIGH))
+    {
+        perror("rpi_gpio_output: start pulse");
+        return false;
+    }
  
     struct timespec pulse_duration = { .tv_sec = 0, .tv_nsec = 10 * 1000 };  // 10 µs
     nanosleep(&pulse_duration, NULL);
  
-    rpi_gpio_clear(GPIO_PULSE_PIN);
-    return 0;
+    if (rpi_gpio_output(GPIO_PULSE_PIN, GPIO_LOW))
+    {
+        perror("rpi_gpio_output: end pulse");
+        return false;
+    }
+
+    return true;
 }
  
 /**
@@ -140,28 +147,26 @@ static int send_pulse(void)
 */
 static bool init_gpios(void)
 {
-    // Map the GPIO registers.
-    if (!rpi_gpio_map_regs(RPI_PERIPHERAL_BASE))
+    // Configure the trigger pin (US_TRIG) as an output.
+    if (rpi_gpio_setup(GPIO_PULSE_PIN, GPIO_OUT))
     {
-        printf("Failed to map GPIO registers\n");
+        perror("rpi_gpio_setup: PULSE");
         return false;
     }
- 
-    // Configure the trigger pin (US_TRIG) as an output.
-    rpi_gpio_set_select(GPIO_PULSE_PIN, RPI_GPIO_FUNC_OUT);
- 
+
     // Configure the echo pin (US_ECHO) as an input.
-    rpi_gpio_set_select(GPIO_INTERRUPT_PIN, RPI_GPIO_FUNC_IN);
- 
-    // Disable the internal pull resistor on the echo pin.
-    if (!rpi_gpio_set_pud_bcm2711(GPIO_INTERRUPT_PIN, RPI_GPIO_PUD_OFF))
+    if (rpi_gpio_setup_pull(GPIO_ECHO_PIN, GPIO_IN, GPIO_PUD_OFF))
     {
-        printf("Failed to disable pull resistor on echo pin\n");
+        perror("Failed to disable pull resistor on echo pin");
         return false;
-    };
- 
-    // Clear any previous GPIO events.
-    __RPI_GPIO_REGS[RPI_GPIO_REG_GPEDS0] = 0xFFFFFFFF;
+    }
+
+    // Register an event trigger on a falling edge (button press)
+    if (rpi_gpio_add_event_detect(GPIO_ECHO_PIN, coid, GPIO_RISING | GPIO_FALLING, EVENT_ECHO))
+    {
+        perror("rpi_gpio_add_event_detect");
+        return false;
+    }
  
     return true;
 }
@@ -176,41 +181,74 @@ static bool init_gpios(void)
 * @param distance Pointer to a float where the computed distance (in cm) will be stored.
 * @return int Returns 0 on success, or -1 if an error occurs (e.g., timeout).
 */
-static int read_distance(float *distance)
+static int check_distance(float *distance)
 {
-    if (send_pulse() != 0)
+    // send pulse when distance is set to negative value
+    if (*distance < 0)
     {
-        printf("Failed to send trigger pulse\n");
-        return -1;
+        if (!send_pulse() != 0)
+        {
+            printf("Failed to send trigger pulse\n");
+            return -1;
+        }
+
+        *distance = 0.0;
+
+        return 0;
     }
  
-    struct timespec rising_edge_time, falling_edge_time;
- 
-    // Wait for the rising edge on the echo pin.
-    if (wait_for_gpio_state(GPIO_INTERRUPT_PIN, true, EDGE_TIMEOUT_MS, &rising_edge_time) != 0)
+    struct timespec current_time;
+
+    // Get the current time
+    clock_gettime(CLOCK_MONOTONIC, &current_time);
+
+    if (last_trigger_event_time.tv_nsec == 0)
     {
-        printf("Timeout waiting for rising edge\n");
-        return -1;
-    }
-    printf("Rising edge detected\n");
- 
-    // Wait for the falling edge on the echo pin.
-    if (wait_for_gpio_state(GPIO_INTERRUPT_PIN, false, EDGE_TIMEOUT_MS, &falling_edge_time) != 0)
+        printf("Rising edge detected\n");
+
+        last_trigger_event_time = current_time;
+
+        return 1;
+    } else
     {
-        printf("Timeout waiting for falling edge\n");
-        return -1;
+        printf("Falling edge detected\n");
+
+        // Calculate the echo pulse duration in microseconds.
+        float pulse_duration_us = calculate_elapsed_time_us(&last_trigger_event_time, &current_time);
+ 
+        // Compute the distance in centimeters (divide by 2 for the round-trip).
+        *distance = (pulse_duration_us * SPEED_OF_SOUND_CM_PER_US) / 2.0;
+
+        // reset last trigger time
+        last_trigger_event_time.tv_sec = 0;
+        last_trigger_event_time.tv_nsec = 0;
+
+        return 0;
     }
-    printf("Falling edge detected\n");
  
-    // Calculate the echo pulse duration in microseconds.
-    float pulse_duration_us = calculate_elapsed_time_us(&rising_edge_time, &falling_edge_time);
- 
-    // Compute the distance in centimeters (divide by 2 for the round-trip).
-    *distance = (pulse_duration_us * SPEED_OF_SOUND_CM_PER_US) / 2.0;
- 
-    return 0;
+    return -1;
 }
  
+bool running = true;
+
+// handlers for intercepting Ctrl-C to stop application
+static void ctrl_c_handler(int signum)
+{
+    (void)(signum);
+    running = false;
+}
+
+static void setup_handlers(void)
+{
+    struct sigaction sa =
+        {
+            .sa_handler = ctrl_c_handler,
+        };
+
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+}
+
 /**
 * @brief Main function for the ultrasonic sensor example.
 *
@@ -221,41 +259,94 @@ static int read_distance(float *distance)
 */
 int main(void)
 {
-    // Set a 10 µs clock period.
-    struct _clockperiod period;
-    period.nsec = 10000;  // 10 µs
-    period.fract = 0;
-    if (ClockPeriod(CLOCK_REALTIME, NULL, &period, 0) == -1)
+    setup_handlers();
+
+    // Initialize the communication channel
+    if (!init_channel())
     {
-        perror("ClockPeriod");
         return EXIT_FAILURE;
     }
  
     // Initialize the GPIOs.
     if (!init_gpios())
     {
-        printf("Failed to initialize GPIOs\n");
+        perror("Failed to initialize GPIOs.");
         return EXIT_FAILURE;
     }
- 
+
     // Allow the sensor to settle.
     sleep(2);
  
+    last_trigger_event_time.tv_sec = 0;
+    last_trigger_event_time.tv_nsec = 0;
+
+    int return_code;
+    float distance = -1.0;
+    struct _pulse pulse;
+
     // Continuously measure and print the distance.
-    while (1)
+
+    // send pulse
+    if (check_distance(&distance))
     {
-        float distance;
-        if (read_distance(&distance) == 0)
-        {
-            printf("Distance: %.2f cm\n", distance);
-        }
-        else
-        {
-            printf("Error reading distance\n");
-        }
- 
-        usleep(100000);  // Delay 100 ms between measurements.
+        perror("Error sending pulse.");
     }
+ 
+    while(running)
+    {
+        if (MsgReceivePulse(chid, &pulse, sizeof(pulse), NULL) == -1)
+        {
+            perror("MsgReceivePulse()");
+            return EXIT_FAILURE;
+        }
+
+        if (pulse.code != _PULSE_CODE_MINAVAIL)
+        {
+            fprintf(stderr, "Unexpected pulse code %d\n", pulse.code);
+            return EXIT_FAILURE;
+        }
+
+        switch (pulse.value.sival_int)
+        {
+            case EVENT_ECHO:
+                return_code = check_distance(&distance);
+
+                switch (return_code)
+                {
+                    case 0:
+                        printf("Distance: %.2f cm\n", distance);
+ 
+                        usleep(100000);  // Delay 100 ms between measurements.
+
+                        // send next pulse
+                        last_trigger_event_time.tv_sec = 0;
+                        last_trigger_event_time.tv_nsec = 0;
+                        distance = -1.0;
+                        if (check_distance(&distance))
+                        {
+                            perror("Error sending pulse.");
+                        }
+				        break;
+
+                    // do nothing
+                    case 1:
+                        printf("Received one event, waiting for other ...\n");
+				        break;
+
+                    case -1:
+                        printf("Error reading distance\n");
+				        break;
+                }
+				break;
+        }
+    }
+ 
+    if (rpi_gpio_cleanup())
+    {
+        perror("Failed to cleanup GPIOs.");
+    }
+
+    printf("Exiting ...\n");
  
     return EXIT_SUCCESS;
 }

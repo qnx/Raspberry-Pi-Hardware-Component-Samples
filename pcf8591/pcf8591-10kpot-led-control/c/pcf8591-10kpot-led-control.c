@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2025-2026, BlackBerry Limited. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ bool running = true;
 static void ctrl_c_handler(int signum)
 {
     (void)(signum);
-    running = 0;
+    running = false;
 }
 
 static void setup_handlers(void)
@@ -66,8 +66,8 @@ int main(int argc, char **argv)
         if (prev_value != value)
         {
             printf("New 10K POT value: %d\n", value);
-
-	    prev_value = value;
+ 
+            prev_value = value;
 
             // output input value from 10K pot to analog out to control voltage to the LED
             if (smbus_write_byte_data(PI_SMB_BUS, PCF8591_ADDRESS, PCF8591_AOU0, value)) // single DAC output

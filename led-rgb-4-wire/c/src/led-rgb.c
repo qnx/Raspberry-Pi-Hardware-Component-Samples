@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2025-2026, BlackBerry Limited. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+#include <stdbool.h>
 #include <stdio.h>    // Standard input/output functions (for puts and perror)
 #include <stdlib.h>   // Standard library (for EXIT_SUCCESS and EXIT_FAILURE)
 #include <time.h>
+#include <unistd.h>  // For usleep
 
 // The interface for a GPIO resource manager tailored for the Raspberry Pi's GPIO pins under QNX.
 // This file provides functions to configure GPIO pins, set pin modes, and read/write pin values.
@@ -107,22 +109,22 @@ int main(void) {
     // Infinite loop to cycle through LED colors
     while (1) {
         turnOff();
-        delay(1000);
+        usleep(1000000);  // 1 second delay
 
         red();
-        delay(1000);
+        usleep(1000000);  // 1 second delay
 
         green();
-        delay(1000);
+        usleep(1000000);  // 1 second delay
 
         blue();
-        delay(1000);
+        usleep(1000000);  // 1 second delay
 
         yellow();
-        delay(1000);
+        usleep(1000000);  // 1 second delay
 
         white();
-        delay(1000);
+        usleep(1000000);  // 1 second delay
     }
 
     // Exit successfully (won't ever get here due to endless loop above)

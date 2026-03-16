@@ -1,16 +1,29 @@
+#
+# Copyright (c) 2026, BlackBerry Limited. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+include ../../../common/config.mk
+
 #Build artifact type, possible values shared, static and exe
+
 ARTIFACT_TYPE = exe
 PROJECT_NAME = pcf8591-10kpot-led-control
 
-LDFLAGS_shared = -shared -o
 ARTIFACT_NAME_shared = lib$(PROJECT_NAME).so
-
-LDFLAGS_static = -static -a
 ARTIFACT_NAME_static = lib$(PROJECT_NAME).a
-
-LDFLAGS_exe = -o
 ARTIFACT_NAME_exe = $(PROJECT_NAME)
-
 ARTIFACT = $(ARTIFACT_NAME_$(ARTIFACT_TYPE))
 
 #Build architecture/variant string, possible values: x86, armv7le, etc...
@@ -22,13 +35,6 @@ BUILD_PROFILE ?= debug
 CONFIG_NAME ?= $(PLATFORM)-$(BUILD_PROFILE)
 OUTPUT_DIR = build/$(CONFIG_NAME)
 TARGET = $(OUTPUT_DIR)/$(ARTIFACT)
-
-#Compiler definitions
-
-CC = qcc -Vgcc_nto$(PLATFORM)
-CXX = q++ -Vgcc_nto$(PLATFORM)_cxx
-
-LD = $(CC)
 
 #User defined include/preprocessor flags and libraries
 

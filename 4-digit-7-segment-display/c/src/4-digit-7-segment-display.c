@@ -16,6 +16,8 @@
 
 #include <stdio.h>    // Standard input/output functions (for puts and perror)
 #include <stdlib.h>   // Standard library (for EXIT_SUCCESS and EXIT_FAILURE) 
+#include <time.h>
+#include <unistd.h>
 
 #include "rpi_gpio.h" // Raspberry Pi GPIO control library
 
