@@ -1,3 +1,22 @@
+#
+# Copyright (c) 2026, BlackBerry Limited. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+include ../../common/config.mk
+
+ARTIFACT_TYPE = exe
 ARTIFACT = mcp-8008-joystick
 
 #Build architecture/variant string, possible values: x86, armv7le, etc...
@@ -9,12 +28,6 @@ BUILD_PROFILE ?= debug
 CONFIG_NAME ?= $(PLATFORM)-$(BUILD_PROFILE)
 OUTPUT_DIR = build/$(CONFIG_NAME)
 TARGET = $(OUTPUT_DIR)/$(ARTIFACT)
-
-#Compiler definitions
-
-CC = qcc -Vgcc_nto$(PLATFORM)
-CXX = q++ -Vgcc_nto$(PLATFORM)_cxx
-LD = $(CC)
 
 #User defined include/preprocessor flags and libraries
 
@@ -59,7 +72,7 @@ $(OUTPUT_DIR)/%.o: %.c
 
 #Linking rule
 $(TARGET):$(OBJS) librpi_spi.a librpi_gpio.a
-	$(LD) -o $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
+	$(LD) $(LDFLAGS_$(ARTIFACT_TYPE)) $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
 
 #Rules section for default compilation and linking
 all: $(TARGET)

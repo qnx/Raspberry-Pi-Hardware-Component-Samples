@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2025-2026, BlackBerry Limited. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+ #include <stdbool.h>
  #include <stdio.h>
  #include <stdlib.h>
  #include <time.h>
  #include <unistd.h>
+ #include <sys/iomsg.h>
  #include "rpi_gpio.h"
  
  // Define GPIO pins for rotary encoder and button
@@ -119,6 +121,9 @@
  }
  
  int main(void) {
+     int clk_state;
+     int last_clk_state;
+     int dt_state;
  
      setup_handlers();
  
@@ -144,7 +149,7 @@
      }
  
      // Read initial state of CLK to detect transitions
-     int last_clk_state = read_pin(CLK_GPIO);
+     last_clk_state = read_pin(CLK_GPIO);
      if (last_clk_state == -1)
      {
          return EXIT_FAILURE;
@@ -186,8 +191,8 @@
              case EVENT_ROTARY_CLK:
              case EVENT_ROTARY_DT:
                  // Read both CLK and DT pin states
-                 int clk_state = read_pin(CLK_GPIO);
-                 int dt_state = read_pin(DT_GPIO);
+                 clk_state = read_pin(CLK_GPIO);
+                 dt_state = read_pin(DT_GPIO);
                  if (clk_state == -1 || dt_state == -1)
                  {
                      return EXIT_FAILURE;

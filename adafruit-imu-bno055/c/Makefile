@@ -1,4 +1,23 @@
+#
+# Copyright (c) 2026, BlackBerry Limited. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+include ../../common/config.mk
+
 # Artifact name: the final binary
+ARTIFACT_TYPE = exe
 ARTIFACT = imu-bno055
  
 # Build architecture/variant string, e.g. aarch64le, x86_64le, etc.
@@ -11,10 +30,6 @@ BUILD_PROFILE ?= debug
 CONFIG_NAME ?= $(PLATFORM)-$(BUILD_PROFILE)
 OUTPUT_DIR = build/$(CONFIG_NAME)
 TARGET = $(OUTPUT_DIR)/$(ARTIFACT)
- 
-# Compiler and linker definitions
-CC = qcc -Vgcc_nto$(PLATFORM)
-LD = $(CC)
  
 # Include paths (adjusted: use the folder where rpi_i2c.h is now located)
 INCLUDES = -I../../common/rpi_i2c/public/ -I../../common/system/gpio/ -I../../common/rpi_gpio/public 
@@ -54,7 +69,7 @@ LIBS = -L../../common/rpi_i2c/build/$(CONFIG_NAME) -lrpi_i2c -lm -L../../common/
  
 # Linking rule to create the final binary
 $(TARGET): $(OBJS) librpi_i2c.a librpi_gpio.a
-	$(LD) -o $(TARGET) $(OBJS) $(LIBS)
+	$(LD) $(LDFLAGS_$(ARTIFACT_TYPE)) $(TARGET) $(OBJS) $(LIBS)
  
 # Default rule
 all: $(TARGET)

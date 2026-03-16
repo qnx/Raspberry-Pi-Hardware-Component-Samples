@@ -1,8 +1,6 @@
 # HC-SR04 Ultrasonic Sensor for QNX
  
 This repository contains sample code (in both C and Python) for interfacing with the HC-SR04 ultrasonic sensor on QNX. Originally written for the Trilobot platform, this code can also be changed for use on a breadboard or other hardware setups.
-
-NOTE: The C implementation talks directly to the GPIO HW of the RPI4 and thus only supports that target.
  
 > **Important:**  
 > Both implementations require root privileges to access the GPIO pins. The code uses QNX’s `rpi_gpio` API.
@@ -38,11 +36,11 @@ The HC-SR04 ultrasonic sensor measures distance by emitting an ultrasonic pulse 
  
 For the Trilobot platform, the HC-SR04 sensor is wired as follows:
  
-- **VCC:** 5V (P1)
+- **VCC:** Connect to any GPIO 5V pin (P1)
 - **US_TRIG (Trigger):** Connected to GPIO 13 (P2)
 - **US_ECHO (Echo):** Connected to GPIO 25 (P3)  
   *Note:* The sensor’s built-in resistor divider reduces the echo voltage (to ~2.5V).
-- **GND:** Ground (P4)
+- **GND:** Connect to any GPIO Ground pin (P4)
  
 In the Trilobot code, the internal pull resistor on the echo pin is typically disabled to allow the built-in divider to work properly. However, in some setups the sensor functions even when this is not disabled.
  
