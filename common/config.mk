@@ -14,19 +14,30 @@
 # limitations under the License.
 #
 
-# check the host platform and build environment
-ifneq ("$(findstring linux,$(MAKE_HOST))", "")
-$(info Detected Linux host.)
-ifeq ($(origin QNX_HOST), environment)
-$(info Detected QNX SDP environment.  Build QNX cross-compile.)
-BUILD_QNX := true
+# check the host platform and build environment assuming not self hosted to start
 BUILD_QNX_SELF_HOSTED :=
-endif
-endif
+
 ifneq ("$(findstring qnx,$(MAKE_HOST))", "")
 $(info Detected QNX host. Build for QNX self-hosted by default.)
 BUILD_QNX := true
 BUILD_QNX_SELF_HOSTED := true
+else ifneq ("$(findstring linux,$(MAKE_HOST))", "")
+$(info Detected Linux host.)
+else ifeq ($(OS), Windows_NT)
+$(info Detected Windows host.)
+else
+$(info Detected Unknown host.)
+endif
+
+# if we aren't on self hosted check if we are building for QNX or host
+ifndef BUILD_QNX_SELF_HOSTED
+ifeq ($(origin QNX_HOST), environment)
+$(info Detected QNX SDP environment.  Build QNX cross-compile.)
+BUILD_QNX := true
+else
+$(info QNX SDP environment not detected building for host.)
+BUILD_QNX :=
+endif
 endif
 
 # configure compiler and linker
@@ -56,4 +67,3 @@ LD_static = $(CC)
 LD_shared = $(CC)
 endif
 endif
-
