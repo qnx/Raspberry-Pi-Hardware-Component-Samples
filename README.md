@@ -40,6 +40,7 @@ Any modifications to the standard configuration required for any sample code to 
 | SN3218A                | 18‑channel LED Driver                    | I2C          | [SN3218A RGB LED](sn3218a-rgb-led/)                                                                                                                | C, Python |
 | WS281x                 | Addressable RGB LED                      | SPI          | [LED Strip Matrix](led-strip-matrix/)                                                                                                              | C         |
 |Eletromagnet + Relay    | Electromagnetic Actuator                 | GPIO         | [Electromagnet Relay Control](eletromagnet-relay/)               | C         |
+| PCA9685                | 16 channel PWM Servo controller          | I2C          | [PCA9685 Servo Controller](pca9685-servo-controller/)                                                                                                              | C         |
 ## Content
 
 ### /common
