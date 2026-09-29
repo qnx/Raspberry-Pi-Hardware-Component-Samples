@@ -1,6 +1,6 @@
 #Build artifact type, possible values shared, static and exe
 ARTIFACT_TYPE = exe
-PROJECT_NAME = blink-tuto
+PROJECT_NAME = electromagnet-relay
 
 LDFLAGS_shared = -shared -o
 ARTIFACT_NAME_shared = lib$(PROJECT_NAME).so
@@ -32,11 +32,11 @@ LD = $(CC)
 
 #User defined include/preprocessor flags and libraries
 
-#INCLUDES += -I/path/to/my/lib/include
-#INCLUDES += -I../mylib/public
+INCLUDES += -I../../common/system/gpio
+INCLUDES += -I../../common/rpi_gpio/public
 
-#LIBS += -L/path/to/my/lib/$(PLATFORM)/usr/lib -lmylib
-#LIBS += -L../mylib/$(OUTPUT_DIR) -lmylib
+LIBS += -L../../common/rpi_gpio/build/aarch64le-debug
+LIBS += -lm -lrpi_gpio
 
 #Compiler flags for build profiles
 CCFLAGS_release += -O2

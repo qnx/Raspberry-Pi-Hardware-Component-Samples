@@ -25,48 +25,49 @@ A push button connected to a GPIO input allows the user to control the relay. Wh
 
 ## Pin Configuration
 
-| Component | Raspberry Pi Pin | Description |
-|------------|-----------------|-------------|
-| Relay IN   | GPIO 17  | Relay control signal |
-| Relay VCC  | 5V       | Relay power |
-| Relay GND  | GND     | Ground |
-| Button     | GPIO 19  | Button input |
-| Button     | 3.3V    | Button power |
+| Component  | Raspberry Pi Pin | Description          |
+|------------|------------------|----------------------|
+| Relay IN   | GPIO 17          | Relay control signal |
+| Relay VCC  | 5V               | Relay power          |
+| Relay GND  | GND              | Ground               |
+| Button     | GPIO 19          | Button input         |
+| Button     | 3.3V             | Button power         |
 
 ## Relay Wiring
 
 ### Raspberry Pi to Relay
 
-| Relay Pin | Raspberry Pi Pin |
-|------------|-----------------|
-| VCC        | 5V |
-| GND        | GND |
-| IN         | GPIO 17 |
+| Relay Pin  | Raspberry Pi Pin |
+|------------|----------------- |
+| VCC        | 5V               |
+| GND        | GND              |
+| IN         | GPIO 17          |
 
 ### Relay to Electromagnet Power Circuit
 
-| Relay Terminal | Connection |
-|---------------|------------|
-| COM           | +12V Power Supply |
-| NO            | Electromagnet Positive (+) |
-| Electromagnet Negative (-) | 12V Power Supply Ground (-) |
+| Relay Terminal             | Connection                              |
+|----------------------------|-----------------------------------------| 
+| COM                        | +12V Power Supply                       |
+| NO                         | Electromagnet Positive (+)              |
+| NC                         | Not connected                           |
+| Electromagnet Negative (-) | -12V Power Supply             |
 
 The Normally Open (NO) contact is used so the electromagnet remains off until the relay is energized.
 
 ## Button Wiring
 
 | Button Connection | Raspberry Pi Pin |
-|------------------|------------------|
-| One Side         | GPIO 19 |
-| Other Side       | 3.3V |
+|-------------------|------------------|
+| One Side          | GPIO 19          |
+| Other Side        | 3.3V             |
 
 ### Pull-Down Resistor
 
 | Resistor Connection | Connection |
-|--------------------|------------|
-| One End            | GPIO 19 |
-| Other End          | GND |
-| Value              | 10kΩ |
+|---------------------|------------|
+| One End             | GPIO 19    |
+| Other End           | GND        |
+| Value               | 10kΩ       |
 
 
 ## Operation
@@ -86,4 +87,4 @@ When the button is released:
 
 ## Schematic Diagram
 
-<img src="./circuit_image.svg" >
+<img src="./circuit_image.png" width="50%">

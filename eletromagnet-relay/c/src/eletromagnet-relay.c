@@ -1,12 +1,28 @@
+/*
+ * Copyright (c) 2025-2026, BlackBerry Limited. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/iomsg.h>
+#include "rpi_gpio.h"
 
-// include gpio interface funct
-#include "public/rpi_gpio.h"
+
 // define possible events types
 enum sample_event_t
 {
@@ -53,7 +69,7 @@ static bool init_button_input(int gpio_pin, int button_event_id)
     return true;
 }
 
-static bool init_RELAY(int gpio_pin)
+static bool init_relay(int gpio_pin)
 {
     if (rpi_gpio_setup(gpio_pin, GPIO_OUT))
     {
@@ -63,21 +79,12 @@ static bool init_RELAY(int gpio_pin)
     return true;
 }
 
-static bool RELAY_on(int gpio_pin)
+// Set relay GPIO level
+static bool relay_set(int gpio_pin, int level)
 {
-    if (rpi_gpio_output(gpio_pin, GPIO_HIGH))
+    if (rpi_gpio_output(gpio_pin, level))
     {
-        perror("rpi_gpio_setup");
-        return false;
-    }
-    return true;
-}
-
-static bool RELAY_off(int gpio_pin)
-{
-    if (rpi_gpio_output(gpio_pin, GPIO_LOW))
-    {
-        perror("rpi_gpio_setup");
+        perror("rpi_gpio_output");
         return false;
     }
     return true;
@@ -99,16 +106,16 @@ int main()
     }
 
     // initialize RELAY
-    if (!init_RELAY(RELAY_GPIO_PIN))
+    if (!init_relay(RELAY_GPIO_PIN))
     {
         return EXIT_FAILURE;
     }
 
-    // track RELAY state to prevent unnecessary operations
-    bool RELAY_is_on = false;
+    // initialize RELAY state level to low
+    int relay_level = GPIO_LOW;
 
     // start with RELAY off
-    if (!RELAY_off(RELAY_GPIO_PIN))
+    if (!relay_set(RELAY_GPIO_PIN, GPIO_LOW))
     {
         return EXIT_FAILURE;
     }
@@ -141,40 +148,32 @@ int main()
         {
         case EVENT_BUTTON_1:
 
-            //print botton event
+            // print botton event
             printf("Button event\n");
             // get the current time
             clock_gettime(CLOCK_MONOTONIC, &current_time);
 
-            if (!RELAY_is_on)
+            long time_diff_ns =
+                (current_time.tv_sec - last_button_event_time.tv_sec) * 1000000000L +
+                (current_time.tv_nsec - last_button_event_time.tv_nsec);
+
+            if (time_diff_ns < debounce_threshold)
             {
-                long time_diff_ns = (current_time.tv_sec - last_button_event_time.tv_sec) * 100000000L + (current_time.tv_nsec - last_button_event_time.tv_nsec);
-                if (time_diff_ns < debounce_threshold)
-                {
-                    // ignore this event, as it's too close to the last one
-                    break;
-                }
+                break;
             }
+
             last_button_event_time = current_time;
 
-            if (RELAY_is_on)
+            relay_level =
+                (relay_level == GPIO_HIGH) ? GPIO_LOW : GPIO_HIGH;
+
+            if (!relay_set(RELAY_GPIO_PIN, relay_level))
             {
-                // RELAY is on, turn it off
-                if (!RELAY_off(RELAY_GPIO_PIN))
-                {
-                    return EXIT_FAILURE;
-                }
-                RELAY_is_on = false;
+                return EXIT_FAILURE;
             }
-            else
-            {
-                // RELAY is off, turn it on
-                if (!RELAY_on(RELAY_GPIO_PIN))
-                {
-                    return EXIT_FAILURE;
-                }
-                RELAY_is_on = true;
-            }
+
+            printf("Magnet %s\n", relay_level == GPIO_HIGH ? "activated" : "deactivated");
+
             break;
         }
     }
