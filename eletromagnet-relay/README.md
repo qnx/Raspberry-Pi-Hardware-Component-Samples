@@ -21,7 +21,6 @@ A push button connected to a GPIO input allows the user to control the relay. Wh
 - 12V DC Power Supply
 - Breadboard
 - Jumper Wires
-- Resistance
 
 ## Pin Configuration
 
@@ -61,14 +60,16 @@ The Normally Open (NO) contact is used so the electromagnet remains off until th
 | One Side          | GPIO 19          |
 | Other Side        | 3.3V             |
 
-### Pull-Down Resistor
 
-| Resistor Connection | Connection |
-|---------------------|------------|
-| One End             | GPIO 19    |
-| Other End           | GND        |
-| Value               | 10kΩ       |
-
+### Button Input
+ 
+The button input on GPIO 19 uses the Raspberry Pi's internal pull-down resistor, which is enabled in software during initialization.
+ 
+No external pull-down resistor is required.
+ 
+```c 
+rpi_gpio_setup_pull(GPIO19, GPIO_IN, GPIO_PUD_DOWN);
+```
 
 ## Operation
 
