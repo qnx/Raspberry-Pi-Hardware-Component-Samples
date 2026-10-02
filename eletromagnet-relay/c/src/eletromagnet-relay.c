@@ -148,8 +148,6 @@ int main()
         {
         case EVENT_BUTTON_1:
 
-            // print botton event
-            printf("Button event\n");
             // get the current time
             clock_gettime(CLOCK_MONOTONIC, &current_time);
 
