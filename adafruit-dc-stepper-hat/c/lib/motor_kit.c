@@ -161,7 +161,7 @@ int motor_kit_stepper_init(motor_kit_t *motor_kit, stepper_motor_t *stepper) {
   if (res == EOK) {
     stepper->initialized = true;
     stepper->current_microstep = 0;
-    stepper->microsteps = 8;
+    stepper->microsteps = 16;
 
     // Calculate the step curve
     for (int i = 0; i < stepper->microsteps + 1; i++) {
@@ -231,6 +231,11 @@ int motor_kit_stepper_release(motor_kit_t *motor_kit,
   res |= set_pwm_duty_cycle(motor_kit, stepper->b2, 0);
   return res;
 }
+
+int motor_kit_stepper_brake(motor_kit_t *motor_kit, stepper_motor_t *stepper) {
+  return update_coils(motor_kit, stepper, false);
+}
+
 
 int motor_kit_dc_init(motor_kit_t *motor_kit, dc_motor_t *motor) {
   if (motor_kit == NULL || motor == NULL || motor->initialized) {

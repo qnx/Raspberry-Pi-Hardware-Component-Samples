@@ -112,6 +112,17 @@ int motor_kit_stepper_step(motor_kit_t *motor_kit, stepper_motor_t *stepper,
 int motor_kit_stepper_release(motor_kit_t *motor_kit, stepper_motor_t *stepper);
 
 /**
+ * @brief Engages the stepper motor
+ *
+ * @param motor_kit Owner of the stepper
+ * @param stepper  Stepper to be engaged
+ *
+ * @return EOK on success, otherwise an error code.
+ */
+int motor_kit_stepper_brake(motor_kit_t *motor_kit, stepper_motor_t *stepper);
+
+
+/**
  * @brief Init a DC motor owned by the provided motor kit.
  *
  * @note Must be called after motor_kit_init()
